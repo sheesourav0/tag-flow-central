@@ -2,26 +2,14 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Checkbox,
+  HStack,
   Text,
   Badge,
   IconButton,
-  HStack,
   Input,
-  Select,
-  useDisclosure,
   Tooltip,
   Menu,
-  MenuButton,
-  MenuList,
   MenuItem,
-  Switch,
 } from '@chakra-ui/react';
 import {
   EditIcon,
@@ -30,10 +18,24 @@ import {
   TriangleDownIcon,
   ChevronDownIcon,
 } from '@chakra-ui/icons';
+import { 
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '../ui/table';
+import { Checkbox } from '../ui/checkbox';
+import { Switch } from '../ui/switch';
 import { useTagStore } from '../store/tagStore';
 import TagModal from './TagModal';
 
-const TagTable = () => {
+interface TagTableProps {
+  onEditTag: (tag: any) => void;
+}
+
+const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
   const {
     tags,
     selectedTags,
@@ -51,12 +53,7 @@ const TagTable = () => {
   const [editingCell, setEditingCell] = useState<{ tagId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
   const [selectedTag, setSelectedTag] = useState<any>(null);
-
-  const {
-    isOpen: isTagModalOpen,
-    onOpen: onTagModalOpen,
-    onClose: onTagModalClose,
-  } = useDisclosure();
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
   const filteredTags = tags.filter(tag => {
     const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,9 +88,9 @@ const TagTable = () => {
     setEditingCell(null);
   };
 
-  const handleEditTag = (tag: any) => {
+  const handleEditTagModal = (tag: any) => {
     setSelectedTag(tag);
-    onTagModalOpen();
+    setIsTagModalOpen(true);
   };
 
   const selectAllTags = () => {
@@ -120,25 +117,24 @@ const TagTable = () => {
     if (isEditing) {
       if (column.key === 'dataType') {
         return (
-          <Select
+          <select
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={() => handleCellEdit(tag.id, column.key, editValue)}
-            size="sm"
+            className="w-full px-2 py-1 text-sm border rounded"
             autoFocus
           >
             <option value="Bool">Bool</option>
             <option value="Int">Int</option>
             <option value="Real">Real</option>
             <option value="String">String</option>
-          </Select>
+          </select>
         );
       } else if (['active', 'retain', 'directLogging', 'alarmEnabled'].includes(column.key)) {
         return (
           <Switch
-            isChecked={editValue === 'true'}
-            onChange={(e) => handleCellEdit(tag.id, column.key, e.target.checked)}
-            size="sm"
+            checked={editValue === 'true'}
+            onCheckedChange={(checked) => handleCellEdit(tag.id, column.key, checked)}
           />
         );
       } else {
@@ -162,9 +158,8 @@ const TagTable = () => {
       case 'alarmEnabled':
         return (
           <Switch
-            isChecked={value}
-            onChange={(e) => updateTag(tag.id, { [column.key]: e.target.checked })}
-            size="sm"
+            checked={value}
+            onCheckedChange={(checked) => updateTag(tag.id, { [column.key]: checked })}
           />
         );
       
@@ -177,7 +172,7 @@ const TagTable = () => {
       
       case 'dataSource':
         return (
-          <HStack spacing={1}>
+          <HStack gap={1}>
             <Badge
               colorScheme={
                 value === 'Internal' ? 'gray' :
@@ -190,11 +185,12 @@ const TagTable = () => {
             </Badge>
             <IconButton
               aria-label="Configure data source"
-              icon={<SettingsIcon />}
               size="xs"
               variant="ghost"
-              onClick={() => handleEditTag(tag)}
-            />
+              onClick={() => onEditTag(tag)}
+            >
+              <SettingsIcon />
+            </IconButton>
           </HStack>
         );
       
@@ -226,25 +222,22 @@ const TagTable = () => {
 
   return (
     <Box h="100%" overflow="auto">
-      <Table variant="simple" size="sm">
-        <Thead bg="gray.50" position="sticky" top={0} zIndex={1}>
-          <Tr>
-            <Th w="40px">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-10">
               <Checkbox
-                isChecked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
-                isIndeterminate={selectedTags.length > 0 && selectedTags.length < sortedTags.length}
-                onChange={selectAllTags}
+                checked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
+                onCheckedChange={selectAllTags}
               />
-            </Th>
+            </TableHead>
             {visibleColumns.map(column => (
-              <Th
+              <TableHead
                 key={column.key}
-                cursor="pointer"
+                className="cursor-pointer"
                 onClick={() => handleSort(column.key)}
-                w={`${column.width}px`}
-                position="relative"
               >
-                <HStack spacing={1}>
+                <HStack gap={1}>
                   <Text>{column.label}</Text>
                   {sortConfig.key === column.key && (
                     sortConfig.direction === 'asc' ? 
@@ -252,58 +245,57 @@ const TagTable = () => {
                       <TriangleDownIcon />
                   )}
                 </HStack>
-              </Th>
+              </TableHead>
             ))}
-            <Th w="60px">Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {sortedTags.map((tag, index) => (
-            <Tr
+            <TableRow
               key={tag.id}
-              bg={selectedTags.includes(tag.id) ? 'brand.50' : index % 2 === 0 ? 'white' : 'gray.25'}
-              _hover={{ bg: 'gray.100' }}
+              className={`${selectedTags.includes(tag.id) ? 'bg-blue-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-25'} hover:bg-gray-100`}
             >
-              <Td>
+              <TableCell>
                 <Checkbox
-                  isChecked={selectedTags.includes(tag.id)}
-                  onChange={() => selectTag(tag.id)}
+                  checked={selectedTags.includes(tag.id)}
+                  onCheckedChange={() => selectTag(tag.id)}
                 />
-              </Td>
+              </TableCell>
               {visibleColumns.map(column => (
-                <Td key={column.key} maxW={`${column.width}px`}>
+                <TableCell key={column.key}>
                   {renderCell(tag, column)}
-                </Td>
+                </TableCell>
               ))}
-              <Td>
+              <TableCell>
                 <Menu>
-                  <MenuButton
-                    as={IconButton}
+                  <IconButton
                     aria-label="Tag actions"
-                    icon={<ChevronDownIcon />}
                     size="xs"
                     variant="ghost"
-                  />
-                  <MenuList>
-                    <MenuItem icon={<EditIcon />} onClick={() => handleEditTag(tag)}>
-                      Edit Tag
-                    </MenuItem>
-                    <MenuItem icon={<SettingsIcon />}>
-                      Configure
-                    </MenuItem>
-                  </MenuList>
+                  >
+                    <ChevronDownIcon />
+                  </IconButton>
+                  <MenuItem onClick={() => handleEditTagModal(tag)}>
+                    <EditIcon mr={2} />
+                    Edit Tag
+                  </MenuItem>
+                  <MenuItem>
+                    <SettingsIcon mr={2} />
+                    Configure
+                  </MenuItem>
                 </Menu>
-              </Td>
-            </Tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </Tbody>
+        </TableBody>
       </Table>
 
       {selectedTag && (
         <TagModal
           isOpen={isTagModalOpen}
           onClose={() => {
-            onTagModalClose();
+            setIsTagModalOpen(false);
             setSelectedTag(null);
           }}
           tag={selectedTag}

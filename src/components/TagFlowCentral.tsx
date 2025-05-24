@@ -8,7 +8,6 @@ import {
   Button,
   Input,
   Heading,
-  useDisclosure,
   Flex,
   Badge,
   IconButton,
@@ -36,34 +35,19 @@ const TagFlowCentral = () => {
     setFilterGroup
   } = useTagStore();
 
-  const {
-    isOpen: isTagModalOpen,
-    onOpen: onTagModalOpen,
-    onClose: onTagModalClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isSettingsModalOpen,
-    onOpen: onSettingsModalOpen,
-    onClose: onSettingsModalClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isDataSourceModalOpen,
-    onOpen: onDataSourceModalOpen,
-    onClose: onDataSourceModalClose,
-  } = useDisclosure();
-
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
 
   const handleAddTag = () => {
     setEditingTag(null);
-    onTagModalOpen();
+    setIsTagModalOpen(true);
   };
 
   const handleEditTag = (tag: any) => {
     setEditingTag(tag);
-    onTagModalOpen();
+    setIsTagModalOpen(true);
   };
 
   const handleDeleteSelected = () => {
@@ -90,7 +74,7 @@ const TagFlowCentral = () => {
       <Box bg="white" borderBottom="1px" borderColor="gray.200" p={4}>
         <Flex wrap="wrap" gap={4} align="center">
           {/* Left side - Action buttons */}
-          <HStack>
+          <HStack gap={2}>
             <Button
               onClick={handleAddTag}
               colorScheme="blue"
@@ -110,7 +94,7 @@ const TagFlowCentral = () => {
             </Button>
 
             <Button
-              onClick={onDataSourceModalOpen}
+              onClick={() => setIsDataSourceModalOpen(true)}
               variant="outline"
               size="sm"
             >
@@ -118,7 +102,7 @@ const TagFlowCentral = () => {
             </Button>
 
             <Button
-              onClick={onSettingsModalOpen}
+              onClick={() => setIsSettingsModalOpen(true)}
               variant="outline"
               size="sm"
             >
@@ -128,7 +112,7 @@ const TagFlowCentral = () => {
           </HStack>
 
           {/* Right side - Filters */}
-          <HStack ml="auto">
+          <HStack ml="auto" gap={2}>
             <Input
               placeholder="Search tags..."
               value={searchTerm}
@@ -175,7 +159,7 @@ const TagFlowCentral = () => {
 
         {/* Status bar */}
         <HStack justify="space-between" mt={3} pt={3} borderTop="1px" borderColor="gray.100">
-          <HStack>
+          <HStack gap={2}>
             <Badge>Total: {tags.length}</Badge>
             <Badge colorScheme="blue">Selected: {selectedTags.length}</Badge>
             <Badge colorScheme="green">Active: {tags.filter(t => t.active).length}</Badge>
@@ -202,18 +186,18 @@ const TagFlowCentral = () => {
       {/* Modals */}
       <TagModal
         isOpen={isTagModalOpen}
-        onClose={onTagModalClose}
+        onClose={() => setIsTagModalOpen(false)}
         tag={editingTag}
       />
 
       <SettingsModal
         isOpen={isSettingsModalOpen}
-        onClose={onSettingsModalClose}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
 
       <DataSourceModal
         isOpen={isDataSourceModalOpen}
-        onClose={onDataSourceModalClose}
+        onClose={() => setIsDataSourceModalOpen(false)}
       />
     </Box>
   );

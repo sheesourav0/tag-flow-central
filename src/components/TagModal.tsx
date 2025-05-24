@@ -135,8 +135,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             </TabsList>
             
             <TabsContent value="basic">
-              <VStack align="stretch" spacing={4}>
-                <HStack spacing={4}>
+              <VStack align="stretch" gap={4}>
+                <HStack gap={4}>
                   <Box flex={2}>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Tag Name</Text>
                     <Input
@@ -171,7 +171,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   </Box>
                 </HStack>
 
-                <HStack spacing={4}>
+                <HStack gap={4}>
                   <Box flex={1}>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Address</Text>
                     <Input
@@ -222,8 +222,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   />
                 </Box>
 
-                <HStack spacing={6}>
-                  <HStack>
+                <HStack gap={6}>
+                  <HStack gap={2}>
                     <Text fontSize="sm">Active</Text>
                     <Switch
                       checked={formData.active}
@@ -231,7 +231,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     />
                   </HStack>
                   
-                  <HStack>
+                  <HStack gap={2}>
                     <Text fontSize="sm">Retain</Text>
                     <Switch
                       checked={formData.retain}
@@ -243,7 +243,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             </TabsContent>
             
             <TabsContent value="datasource">
-              <VStack align="stretch" spacing={4}>
+              <VStack align="stretch" gap={4}>
                 <Box>
                   <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
                   <select
@@ -278,8 +278,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             </TabsContent>
             
             <TabsContent value="logging">
-              <VStack align="stretch" spacing={4}>
-                <HStack>
+              <VStack align="stretch" gap={4}>
+                <HStack gap={2}>
                   <Text fontSize="sm">Direct Logging</Text>
                   <Switch
                     checked={formData.directLogging}
@@ -287,7 +287,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   />
                 </HStack>
 
-                <HStack>
+                <HStack gap={2}>
                   <Text fontSize="sm">Enable Alarms</Text>
                   <Switch
                     checked={formData.alarmEnabled}
