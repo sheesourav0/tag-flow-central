@@ -19,6 +19,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Select,
 } from '@chakra-ui/react';
 import {
   EditIcon,
@@ -116,18 +117,18 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
     if (isEditing) {
       if (column.key === 'dataType') {
         return (
-          <select
+          <Select
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={() => handleCellEdit(tag.id, column.key, editValue)}
-            className="w-full px-2 py-1 text-sm border rounded"
+            size="sm"
             autoFocus
           >
             <option value="Bool">Bool</option>
             <option value="Int">Int</option>
             <option value="Real">Real</option>
             <option value="String">String</option>
-          </select>
+          </Select>
         );
       } else if (['active', 'retain', 'directLogging', 'alarmEnabled'].includes(column.key)) {
         return (
@@ -171,7 +172,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
       
       case 'dataSource':
         return (
-          <HStack gap={1}>
+          <HStack spacing={1}>
             <Badge
               colorScheme={
                 value === 'Internal' ? 'gray' :
@@ -235,7 +236,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
                 cursor="pointer"
                 onClick={() => handleSort(column.key)}
               >
-                <HStack gap={1}>
+                <HStack spacing={1}>
                   <Text>{column.label}</Text>
                   {sortConfig.key === column.key && (
                     sortConfig.direction === 'asc' ? 

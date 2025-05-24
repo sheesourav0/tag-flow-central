@@ -97,7 +97,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
           
           {/* Tab Content */}
           {activeTab === 'connections' && (
-            <VStack align="stretch" gap={4}>
+            <VStack align="stretch" spacing={4}>
               <Text fontSize="sm" color="gray.600">
                 Manage active data source connections for your tags.
               </Text>
@@ -105,8 +105,8 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
               {connections.map((connection) => (
                 <Box key={connection.id} p={4} border="1px" borderColor="gray.200" borderRadius="md">
                   <HStack justify="space-between" align="start">
-                    <VStack align="start" gap={2}>
-                      <HStack gap={2}>
+                    <VStack align="start" spacing={2}>
+                      <HStack spacing={2}>
                         <Text fontWeight="semibold">{connection.name}</Text>
                         <Badge colorScheme={getStatusColor(connection.status)}>
                           {connection.status}
@@ -121,7 +121,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
                       </Text>
                     </VStack>
                     
-                    <HStack gap={2}>
+                    <HStack spacing={2}>
                       <Button
                         size="xs"
                         colorScheme="blue"
@@ -150,12 +150,12 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
           )}
           
           {activeTab === 'new' && (
-            <VStack align="stretch" gap={4}>
+            <VStack align="stretch" spacing={4}>
               <Text fontSize="sm" color="gray.600">
                 Add a new data source connection.
               </Text>
               
-              <HStack gap={4}>
+              <HStack spacing={4}>
                 <Box flex={1}>
                   <Text fontSize="sm" fontWeight="medium" mb={1}>Connection Name</Text>
                   <Input

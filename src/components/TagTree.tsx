@@ -46,7 +46,7 @@ const TagTree = () => {
   };
 
   const GroupItem = ({ group }: { group: any }) => {
-    const { isOpen, onToggle } = useDisclosure({ defaultOpen: group.expanded });
+    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: group.expanded });
     const groupTags = tags.filter(tag => tag.group === group.name);
     const totalTags = getTagCountForGroup(group.name);
     const activeTags = getActiveTagCountForGroup(group.name);
@@ -57,7 +57,7 @@ const TagTree = () => {
         <Box border="1px" borderColor="gray.200" borderRadius="md" mb={2}>
           <Box p={3}>
             <HStack justify="space-between">
-              <HStack flex={1} onClick={onToggle} cursor="pointer">
+              <HStack flex={1} onClick={onToggle} cursor="pointer" spacing={2}>
                 <IconButton
                   aria-label="Toggle group"
                   size="xs"
@@ -88,7 +88,7 @@ const TagTree = () => {
                 </Text>
               )}
               
-              <HStack mb={3} flexWrap="wrap">
+              <HStack mb={3} flexWrap="wrap" spacing={2}>
                 <Badge colorScheme="green" size="sm">
                   {activeTags} Active
                 </Badge>
@@ -97,7 +97,7 @@ const TagTree = () => {
                 </Badge>
               </HStack>
 
-              <VStack align="stretch">
+              <VStack align="stretch" spacing={1}>
                 {groupTags.map(tag => (
                   <HStack
                     key={tag.id}
@@ -107,6 +107,7 @@ const TagTree = () => {
                     cursor="pointer"
                     onClick={() => selectTag(tag.id)}
                     _hover={{ bg: 'brand.100' }}
+                    spacing={2}
                   >
                     <Box
                       w={2}
@@ -146,7 +147,7 @@ const TagTree = () => {
 
   return (
     <Box h="100%" p={4} overflowY="auto">
-      <VStack align="stretch">
+      <VStack align="stretch" spacing={2}>
         <Box border="1px" borderColor="gray.200" borderRadius="md">
           <Box py={3} px={4}>
             <HStack justify="space-between">

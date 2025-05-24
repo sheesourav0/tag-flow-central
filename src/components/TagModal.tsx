@@ -22,6 +22,7 @@ import {
   Tab,
   TabPanel,
   Switch,
+  Select,
 } from '@chakra-ui/react';
 import { useTagStore, Tag } from '../store/tagStore';
 
@@ -140,8 +141,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             
             <TabPanels>
               <TabPanel>
-                <VStack align="stretch" gap={4}>
-                  <HStack gap={4}>
+                <VStack align="stretch" spacing={4}>
+                  <HStack spacing={4}>
                     <Box flex={2}>
                       <Text fontSize="sm" fontWeight="medium" mb={1}>Tag Name</Text>
                       <Input
@@ -153,16 +154,10 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={1}>Data Type</Text>
-                      <select
+                      <Select
                         value={formData.dataType}
                         onChange={(e) => setFormData(prev => ({ ...prev, dataType: e.target.value as Tag['dataType'] }))}
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '6px',
-                          fontSize: '14px'
-                        }}
+                        size="sm"
                       >
                         <option value="Bool">Bool</option>
                         <option value="Byte">Byte</option>
@@ -172,11 +167,11 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                         <option value="DInt">DInt</option>
                         <option value="Real">Real</option>
                         <option value="String">String</option>
-                      </select>
+                      </Select>
                     </Box>
                   </HStack>
 
-                  <HStack gap={4}>
+                  <HStack spacing={4}>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={1}>Address</Text>
                       <Input
@@ -199,23 +194,17 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
 
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Group</Text>
-                    <select
+                    <Select
                       value={formData.group}
                       onChange={(e) => setFormData(prev => ({ ...prev, group: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px',
-                        fontSize: '14px'
-                      }}
+                      size="sm"
                     >
                       {groups.map(group => (
                         <option key={group.id} value={group.name}>
                           {group.name}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Box>
 
                   <Box>
@@ -227,8 +216,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     />
                   </Box>
 
-                  <HStack gap={6}>
-                    <HStack gap={2}>
+                  <HStack spacing={6}>
+                    <HStack spacing={2}>
                       <Text fontSize="sm">Active</Text>
                       <Switch
                         isChecked={formData.active}
@@ -236,7 +225,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                       />
                     </HStack>
                     
-                    <HStack gap={2}>
+                    <HStack spacing={2}>
                       <Text fontSize="sm">Retain</Text>
                       <Switch
                         isChecked={formData.retain}
@@ -248,26 +237,20 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               </TabPanel>
               
               <TabPanel>
-                <VStack align="stretch" gap={4}>
+                <VStack align="stretch" spacing={4}>
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
-                    <select
+                    <Select
                       value={formData.dataSource}
                       onChange={(e) => setFormData(prev => ({ ...prev, dataSource: e.target.value as Tag['dataSource'] }))}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px',
-                        fontSize: '14px'
-                      }}
+                      size="sm"
                     >
                       <option value="Internal">Internal</option>
                       <option value="MQTT">MQTT</option>
                       <option value="HTTPS">HTTPS API</option>
                       <option value="OPC">OPC UA</option>
                       <option value="Modbus">Modbus TCP</option>
-                    </select>
+                    </Select>
                   </Box>
 
                   <Box>
@@ -283,8 +266,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               </TabPanel>
               
               <TabPanel>
-                <VStack align="stretch" gap={4}>
-                  <HStack gap={2}>
+                <VStack align="stretch" spacing={4}>
+                  <HStack spacing={2}>
                     <Text fontSize="sm">Direct Logging</Text>
                     <Switch
                       isChecked={formData.directLogging}
@@ -292,7 +275,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     />
                   </HStack>
 
-                  <HStack gap={2}>
+                  <HStack spacing={2}>
                     <Text fontSize="sm">Enable Alarms</Text>
                     <Switch
                       isChecked={formData.alarmEnabled}
