@@ -78,7 +78,7 @@ const TagFlowCentral = () => {
     <Box h="100vh" bg="gray.50">
       {/* Header */}
       <Box bg="white" borderBottom="1px" borderColor="gray.200" p={6}>
-        <Heading size="lg" color="industrial.800" mb={2}>
+        <Heading size="lg" color="gray.800" mb={2}>
           TagFlow Central
         </Heading>
         <Text color="gray.600">
@@ -93,7 +93,7 @@ const TagFlowCentral = () => {
           <HStack>
             <Button
               onClick={handleAddTag}
-              colorScheme="brand"
+              colorScheme="blue"
               size="sm"
             >
               <AddIcon mr={2} />
@@ -104,7 +104,7 @@ const TagFlowCentral = () => {
               onClick={handleDeleteSelected}
               colorScheme="red"
               size="sm"
-              isDisabled={selectedTags.length === 0}
+              disabled={selectedTags.length === 0}
             >
               Delete ({selectedTags.length})
             </Button>
