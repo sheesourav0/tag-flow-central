@@ -23,6 +23,11 @@ import {
   TabPanel,
   Switch,
   Select,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from '@chakra-ui/react';
 import { useTagStore, Tag } from '../store/tagStore';
 
@@ -41,7 +46,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
     address: '',
     value: '',
     comment: '',
-    group: 'Motors',
+    group: '',
     active: true,
     retain: false,
     dataSource: 'Internal' as Tag['dataSource'],
@@ -89,7 +94,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
         address: '',
         value: '',
         comment: '',
-        group: groups[0]?.name || 'Motors',
+        group: groups[0]?.name || '',
         active: true,
         retain: false,
         dataSource: 'Internal',
@@ -115,6 +120,203 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
       addTag(formData);
     }
     onClose();
+  };
+
+  const renderDataSourceFields = () => {
+    switch (formData.dataSource) {
+      case 'MQTT':
+        return (
+          <VStack align="stretch" spacing={4}>
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>MQTT Topic Path</Text>
+              <Input
+                value={formData.mqttPath}
+                onChange={(e) => setFormData(prev => ({ ...prev, mqttPath: e.target.value }))}
+                placeholder="sensors/motor1/speed"
+                size="sm"
+              />
+            </Box>
+            <HStack spacing={4}>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
+                <Select
+                  value={formData.updateInterval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  size="sm"
+                >
+                  <option value="100ms">100ms</option>
+                  <option value="500ms">500ms</option>
+                  <option value="1s">1 second</option>
+                  <option value="2s">2 seconds</option>
+                  <option value="5s">5 seconds</option>
+                </Select>
+              </Box>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Multiplier</Text>
+                <NumberInput
+                  value={formData.multiplier}
+                  onChange={(valueString, valueNumber) => 
+                    setFormData(prev => ({ ...prev, multiplier: valueNumber || 1 }))
+                  }
+                  size="sm"
+                  step={0.1}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </Box>
+            </HStack>
+          </VStack>
+        );
+      
+      case 'OPC':
+        return (
+          <VStack align="stretch" spacing={4}>
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>OPC Node ID</Text>
+              <Input
+                value={formData.opcNodeId}
+                onChange={(e) => setFormData(prev => ({ ...prev, opcNodeId: e.target.value }))}
+                placeholder="ns=2;s=Temperature.Tank1"
+                size="sm"
+              />
+            </Box>
+            <HStack spacing={4}>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
+                <Select
+                  value={formData.updateInterval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  size="sm"
+                >
+                  <option value="500ms">500ms</option>
+                  <option value="1s">1 second</option>
+                  <option value="2s">2 seconds</option>
+                  <option value="5s">5 seconds</option>
+                  <option value="10s">10 seconds</option>
+                </Select>
+              </Box>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Multiplier</Text>
+                <NumberInput
+                  value={formData.multiplier}
+                  onChange={(valueString, valueNumber) => 
+                    setFormData(prev => ({ ...prev, multiplier: valueNumber || 1 }))
+                  }
+                  size="sm"
+                  step={0.1}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </Box>
+            </HStack>
+          </VStack>
+        );
+      
+      case 'Modbus':
+        return (
+          <VStack align="stretch" spacing={4}>
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>Modbus Register</Text>
+              <NumberInput
+                value={formData.modbusRegister}
+                onChange={(valueString, valueNumber) => 
+                  setFormData(prev => ({ ...prev, modbusRegister: valueNumber || 0 }))
+                }
+                size="sm"
+                min={0}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </Box>
+            <HStack spacing={4}>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
+                <Select
+                  value={formData.updateInterval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  size="sm"
+                >
+                  <option value="1s">1 second</option>
+                  <option value="2s">2 seconds</option>
+                  <option value="5s">5 seconds</option>
+                  <option value="10s">10 seconds</option>
+                </Select>
+              </Box>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Multiplier</Text>
+                <NumberInput
+                  value={formData.multiplier}
+                  onChange={(valueString, valueNumber) => 
+                    setFormData(prev => ({ ...prev, multiplier: valueNumber || 1 }))
+                  }
+                  size="sm"
+                  step={0.1}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </Box>
+            </HStack>
+          </VStack>
+        );
+      
+      case 'HTTPS':
+        return (
+          <VStack align="stretch" spacing={4}>
+            <HStack spacing={4}>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
+                <Select
+                  value={formData.updateInterval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  size="sm"
+                >
+                  <option value="5s">5 seconds</option>
+                  <option value="10s">10 seconds</option>
+                  <option value="30s">30 seconds</option>
+                  <option value="1m">1 minute</option>
+                  <option value="5m">5 minutes</option>
+                </Select>
+              </Box>
+              <Box flex={1}>
+                <Text fontSize="sm" fontWeight="medium" mb={1}>Multiplier</Text>
+                <NumberInput
+                  value={formData.multiplier}
+                  onChange={(valueString, valueNumber) => 
+                    setFormData(prev => ({ ...prev, multiplier: valueNumber || 1 }))
+                  }
+                  size="sm"
+                  step={0.1}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </Box>
+            </HStack>
+          </VStack>
+        );
+      
+      default:
+        return null;
+    }
   };
 
   return (
@@ -262,6 +464,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                       size="sm"
                     />
                   </Box>
+
+                  {renderDataSourceFields()}
                 </VStack>
               </TabPanel>
               
@@ -275,6 +479,24 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     />
                   </HStack>
 
+                  {formData.directLogging && (
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" mb={1}>Log Duration</Text>
+                      <Select
+                        value={formData.logDuration}
+                        onChange={(e) => setFormData(prev => ({ ...prev, logDuration: e.target.value }))}
+                        size="sm"
+                      >
+                        <option value="1h">1 hour</option>
+                        <option value="6h">6 hours</option>
+                        <option value="12h">12 hours</option>
+                        <option value="24h">24 hours</option>
+                        <option value="7d">7 days</option>
+                        <option value="30d">30 days</option>
+                      </Select>
+                    </Box>
+                  )}
+
                   <HStack spacing={2}>
                     <Text fontSize="sm">Enable Alarms</Text>
                     <Switch
@@ -282,6 +504,57 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                       onChange={(e) => setFormData(prev => ({ ...prev, alarmEnabled: e.target.checked }))}
                     />
                   </HStack>
+
+                  {formData.alarmEnabled && (
+                    <VStack align="stretch" spacing={4}>
+                      <Text fontSize="sm" fontWeight="medium" color="orange.600">
+                        Alarm Configuration
+                      </Text>
+                      
+                      <HStack spacing={4}>
+                        <Box flex={1}>
+                          <Text fontSize="sm" fontWeight="medium" mb={1}>High Limit</Text>
+                          <NumberInput
+                            value={formData.alarmHighLimit}
+                            onChange={(valueString, valueNumber) => 
+                              setFormData(prev => ({ ...prev, alarmHighLimit: valueNumber || 100 }))
+                            }
+                            size="sm"
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </Box>
+                        
+                        <Box flex={1}>
+                          <Text fontSize="sm" fontWeight="medium" mb={1}>Low Limit</Text>
+                          <NumberInput
+                            value={formData.alarmLowLimit}
+                            onChange={(valueString, valueNumber) => 
+                              setFormData(prev => ({ ...prev, alarmLowLimit: valueNumber || 0 }))
+                            }
+                            size="sm"
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </Box>
+                      </HStack>
+
+                      <Box p={3} bg="orange.50" borderRadius="md" borderLeft="4px" borderColor="orange.400">
+                        <Text fontSize="xs" color="orange.700">
+                          Alarms will trigger when the tag value exceeds the high limit ({formData.alarmHighLimit}) 
+                          or falls below the low limit ({formData.alarmLowLimit}).
+                        </Text>
+                      </Box>
+                    </VStack>
+                  )}
                 </VStack>
               </TabPanel>
             </TabPanels>
