@@ -11,6 +11,7 @@ import {
   Flex,
   Badge,
   IconButton,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { AddIcon, SettingsIcon, EditIcon } from '@chakra-ui/icons';
 import TagTable from './TagTable';
@@ -35,19 +36,19 @@ const TagFlowCentral = () => {
     setFilterGroup
   } = useTagStore();
 
-  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
+  const tagModalDisclosure = useDisclosure();
+  const settingsModalDisclosure = useDisclosure();
+  const dataSourceModalDisclosure = useDisclosure();
   const [editingTag, setEditingTag] = useState(null);
 
   const handleAddTag = () => {
     setEditingTag(null);
-    setIsTagModalOpen(true);
+    tagModalDisclosure.onOpen();
   };
 
   const handleEditTag = (tag: any) => {
     setEditingTag(tag);
-    setIsTagModalOpen(true);
+    tagModalDisclosure.onOpen();
   };
 
   const handleDeleteSelected = () => {
@@ -79,8 +80,8 @@ const TagFlowCentral = () => {
               onClick={handleAddTag}
               colorScheme="blue"
               size="sm"
+              leftIcon={<AddIcon />}
             >
-              <AddIcon mr={2} />
               Add Tag
             </Button>
             
@@ -94,7 +95,7 @@ const TagFlowCentral = () => {
             </Button>
 
             <Button
-              onClick={() => setIsDataSourceModalOpen(true)}
+              onClick={dataSourceModalDisclosure.onOpen}
               variant="outline"
               size="sm"
             >
@@ -102,11 +103,11 @@ const TagFlowCentral = () => {
             </Button>
 
             <Button
-              onClick={() => setIsSettingsModalOpen(true)}
+              onClick={settingsModalDisclosure.onOpen}
               variant="outline"
               size="sm"
+              leftIcon={<SettingsIcon />}
             >
-              <SettingsIcon mr={2} />
               Settings
             </Button>
           </HStack>
@@ -185,19 +186,19 @@ const TagFlowCentral = () => {
 
       {/* Modals */}
       <TagModal
-        isOpen={isTagModalOpen}
-        onClose={() => setIsTagModalOpen(false)}
+        isOpen={tagModalDisclosure.isOpen}
+        onClose={tagModalDisclosure.onClose}
         tag={editingTag}
       />
 
       <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
+        isOpen={settingsModalDisclosure.isOpen}
+        onClose={settingsModalDisclosure.onClose}
       />
 
       <DataSourceModal
-        isOpen={isDataSourceModalOpen}
-        onClose={() => setIsDataSourceModalOpen(false)}
+        isOpen={dataSourceModalDisclosure.isOpen}
+        onClose={dataSourceModalDisclosure.onClose}
       />
     </Box>
   );

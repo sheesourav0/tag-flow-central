@@ -7,15 +7,15 @@ import {
   Text,
   Badge,
   Box,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Switch,
 } from '@chakra-ui/react';
-import { Switch } from '../ui/switch';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-} from '../ui/dialog';
 import { useTagStore } from '../store/tagStore';
 
 interface SettingsModalProps {
@@ -29,18 +29,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const visibleCount = columns.filter(col => col.visible).length;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            Column Settings
-            <Badge ml={2} colorScheme="blue">
-              {visibleCount}/{columns.length} visible
-            </Badge>
-          </DialogTitle>
-        </DialogHeader>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          Column Settings
+          <Badge ml={2} colorScheme="blue">
+            {visibleCount}/{columns.length} visible
+          </Badge>
+        </ModalHeader>
+        <ModalCloseButton />
         
-        <Box>
+        <ModalBody>
           <VStack align="stretch" gap={3}>
             <Text fontSize="sm" color="gray.600">
               Configure which columns to display in the tag table.
@@ -59,21 +59,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </VStack>
                 <Switch
-                  checked={column.visible}
-                  onCheckedChange={() => toggleColumn(column.key)}
+                  isChecked={column.visible}
+                  onChange={() => toggleColumn(column.key)}
                 />
               </HStack>
             ))}
           </VStack>
-        </Box>
+        </ModalBody>
 
-        <DialogFooter>
+        <ModalFooter>
           <Button colorScheme="blue" onClick={onClose} size="sm">
             Done
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

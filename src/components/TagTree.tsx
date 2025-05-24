@@ -6,15 +6,14 @@ import {
   HStack,
   Text,
   IconButton,
-  Collapse,
   Badge,
-  Tooltip,
   Card,
   CardBody,
   CardHeader,
   Heading,
   Button,
   useDisclosure,
+  Collapse,
 } from '@chakra-ui/react';
 import {
   ChevronDownIcon,
@@ -47,7 +46,7 @@ const TagTree = () => {
   };
 
   const GroupItem = ({ group }: { group: any }) => {
-    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: group.expanded });
+    const { isOpen, onToggle } = useDisclosure({ defaultOpen: group.expanded });
     const groupTags = tags.filter(tag => tag.group === group.name);
     const totalTags = getTagCountForGroup(group.name);
     const activeTags = getActiveTagCountForGroup(group.name);
@@ -55,15 +54,15 @@ const TagTree = () => {
 
     return (
       <Box w="100%">
-        <Card size="sm" mb={2}>
-          <CardHeader py={2} px={3}>
-            <HStack justify="space-between" spacing={2}>
-              <HStack spacing={2} flex={1} onClick={onToggle} cursor="pointer">
+        <Box border="1px" borderColor="gray.200" borderRadius="md" mb={2}>
+          <Box p={3}>
+            <HStack justify="space-between">
+              <HStack flex={1} onClick={onToggle} cursor="pointer">
                 <IconButton
                   aria-label="Toggle group"
-                  icon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
                   size="xs"
                   variant="ghost"
+                  icon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
                 />
                 <Text fontSize="sm" fontWeight="semibold" color="industrial.700">
                   {group.name}
@@ -72,26 +71,24 @@ const TagTree = () => {
                   {totalTags}
                 </Badge>
               </HStack>
-              <Tooltip label="Group settings">
-                <IconButton
-                  aria-label="Group settings"
-                  icon={<SettingsIcon />}
-                  size="xs"
-                  variant="ghost"
-                />
-              </Tooltip>
+              <IconButton
+                aria-label="Group settings"
+                size="xs"
+                variant="ghost"
+                icon={<SettingsIcon />}
+              />
             </HStack>
-          </CardHeader>
+          </Box>
           
           <Collapse in={isOpen}>
-            <CardBody pt={0} px={3} pb={3}>
+            <Box px={3} pb={3}>
               {group.description && (
                 <Text fontSize="xs" color="gray.600" mb={2}>
                   {group.description}
                 </Text>
               )}
               
-              <HStack spacing={2} mb={3} flexWrap="wrap">
+              <HStack mb={3} flexWrap="wrap">
                 <Badge colorScheme="green" size="sm">
                   {activeTags} Active
                 </Badge>
@@ -100,7 +97,7 @@ const TagTree = () => {
                 </Badge>
               </HStack>
 
-              <VStack spacing={1} align="stretch">
+              <VStack align="stretch">
                 {groupTags.map(tag => (
                   <HStack
                     key={tag.id}
@@ -110,7 +107,6 @@ const TagTree = () => {
                     cursor="pointer"
                     onClick={() => selectTag(tag.id)}
                     _hover={{ bg: 'brand.100' }}
-                    spacing={2}
                   >
                     <Box
                       w={2}
@@ -119,7 +115,7 @@ const TagTree = () => {
                       bg={tag.connectionStatus === 'Connected' ? 'green.500' : 
                           tag.connectionStatus === 'Error' ? 'red.500' : 'gray.400'}
                     />
-                    <Text fontSize="xs" flex={1} noOfLines={1}>
+                    <Text fontSize="xs" flex={1}>
                       {tag.name}
                     </Text>
                     <Badge
@@ -141,33 +137,33 @@ const TagTree = () => {
                   </Text>
                 )}
               </VStack>
-            </CardBody>
+            </Box>
           </Collapse>
-        </Card>
+        </Box>
       </Box>
     );
   };
 
   return (
     <Box h="100%" p={4} overflowY="auto">
-      <VStack spacing={4} align="stretch">
-        <Card>
-          <CardHeader py={3}>
+      <VStack align="stretch">
+        <Box border="1px" borderColor="gray.200" borderRadius="md">
+          <Box py={3} px={4}>
             <HStack justify="space-between">
               <Heading size="sm" color="industrial.800">
                 Tag Groups
               </Heading>
               <Button
-                leftIcon={<AddIcon />}
                 size="xs"
                 colorScheme="brand"
                 onClick={handleAddGroup}
+                leftIcon={<AddIcon />}
               >
                 Add Group
               </Button>
             </HStack>
-          </CardHeader>
-        </Card>
+          </Box>
+        </Box>
 
         {groups.map(group => (
           <GroupItem key={group.id} group={group} />

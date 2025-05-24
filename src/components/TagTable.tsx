@@ -7,8 +7,17 @@ import {
   Badge,
   IconButton,
   Input,
-  Tooltip,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Checkbox,
+  Switch,
   Menu,
+  MenuButton,
+  MenuList,
   MenuItem,
 } from '@chakra-ui/react';
 import {
@@ -18,16 +27,6 @@ import {
   TriangleDownIcon,
   ChevronDownIcon,
 } from '@chakra-ui/icons';
-import { 
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from '../ui/table';
-import { Checkbox } from '../ui/checkbox';
-import { Switch } from '../ui/switch';
 import { useTagStore } from '../store/tagStore';
 import TagModal from './TagModal';
 
@@ -133,8 +132,8 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
       } else if (['active', 'retain', 'directLogging', 'alarmEnabled'].includes(column.key)) {
         return (
           <Switch
-            checked={editValue === 'true'}
-            onCheckedChange={(checked) => handleCellEdit(tag.id, column.key, checked)}
+            isChecked={editValue === 'true'}
+            onChange={(e) => handleCellEdit(tag.id, column.key, e.target.checked)}
           />
         );
       } else {
@@ -158,8 +157,8 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
       case 'alarmEnabled':
         return (
           <Switch
-            checked={value}
-            onCheckedChange={(checked) => updateTag(tag.id, { [column.key]: checked })}
+            isChecked={value}
+            onChange={(e) => updateTag(tag.id, { [column.key]: e.target.checked })}
           />
         );
       
@@ -188,9 +187,8 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
               size="xs"
               variant="ghost"
               onClick={() => onEditTag(tag)}
-            >
-              <SettingsIcon />
-            </IconButton>
+              icon={<SettingsIcon />}
+            />
           </HStack>
         );
       
@@ -223,18 +221,18 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
   return (
     <Box h="100%" overflow="auto">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-10">
+        <Thead>
+          <Tr>
+            <Th>
               <Checkbox
-                checked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
-                onCheckedChange={selectAllTags}
+                isChecked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
+                onChange={selectAllTags}
               />
-            </TableHead>
+            </Th>
             {visibleColumns.map(column => (
-              <TableHead
+              <Th
                 key={column.key}
-                className="cursor-pointer"
+                cursor="pointer"
                 onClick={() => handleSort(column.key)}
               >
                 <HStack gap={1}>
@@ -245,50 +243,53 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
                       <TriangleDownIcon />
                   )}
                 </HStack>
-              </TableHead>
+              </Th>
             ))}
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+            <Th>Actions</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
           {sortedTags.map((tag, index) => (
-            <TableRow
+            <Tr
               key={tag.id}
-              className={`${selectedTags.includes(tag.id) ? 'bg-blue-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-25'} hover:bg-gray-100`}
+              bg={selectedTags.includes(tag.id) ? 'blue.50' : index % 2 === 0 ? 'white' : 'gray.25'}
+              _hover={{ bg: 'gray.100' }}
             >
-              <TableCell>
+              <Td>
                 <Checkbox
-                  checked={selectedTags.includes(tag.id)}
-                  onCheckedChange={() => selectTag(tag.id)}
+                  isChecked={selectedTags.includes(tag.id)}
+                  onChange={() => selectTag(tag.id)}
                 />
-              </TableCell>
+              </Td>
               {visibleColumns.map(column => (
-                <TableCell key={column.key}>
+                <Td key={column.key}>
                   {renderCell(tag, column)}
-                </TableCell>
+                </Td>
               ))}
-              <TableCell>
+              <Td>
                 <Menu>
-                  <IconButton
+                  <MenuButton
+                    as={IconButton}
                     aria-label="Tag actions"
                     size="xs"
                     variant="ghost"
-                  >
-                    <ChevronDownIcon />
-                  </IconButton>
-                  <MenuItem onClick={() => handleEditTagModal(tag)}>
-                    <EditIcon mr={2} />
-                    Edit Tag
-                  </MenuItem>
-                  <MenuItem>
-                    <SettingsIcon mr={2} />
-                    Configure
-                  </MenuItem>
+                    icon={<ChevronDownIcon />}
+                  />
+                  <MenuList>
+                    <MenuItem onClick={() => handleEditTagModal(tag)}>
+                      <EditIcon mr={2} />
+                      Edit Tag
+                    </MenuItem>
+                    <MenuItem>
+                      <SettingsIcon mr={2} />
+                      Configure
+                    </MenuItem>
+                  </MenuList>
                 </Menu>
-              </TableCell>
-            </TableRow>
+              </Td>
+            </Tr>
           ))}
-        </TableBody>
+        </Tbody>
       </Table>
 
       {selectedTag && (

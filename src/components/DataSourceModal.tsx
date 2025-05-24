@@ -11,14 +11,14 @@ import {
   Box,
   Flex,
   Heading,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from '@chakra-ui/react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-} from '../ui/dialog';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 interface DataSourceModalProps {
@@ -70,13 +70,13 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Data Source Connections</DialogTitle>
-        </DialogHeader>
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Data Source Connections</ModalHeader>
+        <ModalCloseButton />
         
-        <Box>
+        <ModalBody>
           {/* Tab Navigation */}
           <HStack mb={4} borderBottom="1px" borderColor="gray.200">
             <Button
@@ -133,17 +133,15 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
                         aria-label="Edit connection"
                         size="xs"
                         variant="ghost"
-                      >
-                        <EditIcon />
-                      </IconButton>
+                        icon={<EditIcon />}
+                      />
                       <IconButton
                         aria-label="Delete connection"
                         size="xs"
                         variant="ghost"
                         colorScheme="red"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                        icon={<DeleteIcon />}
+                      />
                     </HStack>
                   </HStack>
                 </Box>
@@ -194,21 +192,20 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
                 />
               </Box>
 
-              <Button colorScheme="blue" size="sm" alignSelf="start">
-                <AddIcon mr={2} />
+              <Button colorScheme="blue" size="sm" alignSelf="start" leftIcon={<AddIcon />}>
                 Add Connection
               </Button>
             </VStack>
           )}
-        </Box>
+        </ModalBody>
 
-        <DialogFooter>
+        <ModalFooter>
           <Button colorScheme="blue" onClick={onClose} size="sm">
             Close
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

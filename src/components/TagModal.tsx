@@ -9,16 +9,20 @@ import {
   Badge,
   Text,
   Box,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Switch,
 } from '@chakra-ui/react';
-import { Switch } from '../ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-} from '../ui/dialog';
 import { useTagStore, Tag } from '../store/tagStore';
 
 interface TagModalProps {
@@ -113,44 +117,91 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {tag ? 'Edit Tag' : 'Add New Tag'}
-            {tag && (
-              <Badge ml={2} colorScheme="blue">
-                {tag.connectionStatus}
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          {tag ? 'Edit Tag' : 'Add New Tag'}
+          {tag && (
+            <Badge ml={2} colorScheme="blue">
+              {tag.connectionStatus}
+            </Badge>
+          )}
+        </ModalHeader>
+        <ModalCloseButton />
         
-        <Box>
-          <Tabs defaultValue="basic">
-            <TabsList>
-              <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="datasource">Data Source</TabsTrigger>
-              <TabsTrigger value="logging">Logging & Alarms</TabsTrigger>
-            </TabsList>
+        <ModalBody>
+          <Tabs>
+            <TabList>
+              <Tab>Basic</Tab>
+              <Tab>Data Source</Tab>
+              <Tab>Logging & Alarms</Tab>
+            </TabList>
             
-            <TabsContent value="basic">
-              <VStack align="stretch" gap={4}>
-                <HStack gap={4}>
-                  <Box flex={2}>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Tag Name</Text>
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      size="sm"
-                    />
-                  </Box>
-                  
-                  <Box flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Data Type</Text>
+            <TabPanels>
+              <TabPanel>
+                <VStack align="stretch" gap={4}>
+                  <HStack gap={4}>
+                    <Box flex={2}>
+                      <Text fontSize="sm" fontWeight="medium" mb={1}>Tag Name</Text>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        size="sm"
+                      />
+                    </Box>
+                    
+                    <Box flex={1}>
+                      <Text fontSize="sm" fontWeight="medium" mb={1}>Data Type</Text>
+                      <select
+                        value={formData.dataType}
+                        onChange={(e) => setFormData(prev => ({ ...prev, dataType: e.target.value as Tag['dataType'] }))}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '6px',
+                          fontSize: '14px'
+                        }}
+                      >
+                        <option value="Bool">Bool</option>
+                        <option value="Byte">Byte</option>
+                        <option value="Word">Word</option>
+                        <option value="DWord">DWord</option>
+                        <option value="Int">Int</option>
+                        <option value="DInt">DInt</option>
+                        <option value="Real">Real</option>
+                        <option value="String">String</option>
+                      </select>
+                    </Box>
+                  </HStack>
+
+                  <HStack gap={4}>
+                    <Box flex={1}>
+                      <Text fontSize="sm" fontWeight="medium" mb={1}>Address</Text>
+                      <Input
+                        value={formData.address}
+                        onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                        placeholder="%I0.0"
+                        size="sm"
+                      />
+                    </Box>
+                    
+                    <Box flex={1}>
+                      <Text fontSize="sm" fontWeight="medium" mb={1}>Initial Value</Text>
+                      <Input
+                        value={formData.value}
+                        onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
+                        size="sm"
+                      />
+                    </Box>
+                  </HStack>
+
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>Group</Text>
                     <select
-                      value={formData.dataType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dataType: e.target.value as Tag['dataType'] }))}
+                      value={formData.group}
+                      onChange={(e) => setFormData(prev => ({ ...prev, group: e.target.value }))}
                       style={{
                         width: '100%',
                         padding: '8px 12px',
@@ -159,156 +210,111 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                         fontSize: '14px'
                       }}
                     >
-                      <option value="Bool">Bool</option>
-                      <option value="Byte">Byte</option>
-                      <option value="Word">Word</option>
-                      <option value="DWord">DWord</option>
-                      <option value="Int">Int</option>
-                      <option value="DInt">DInt</option>
-                      <option value="Real">Real</option>
-                      <option value="String">String</option>
+                      {groups.map(group => (
+                        <option key={group.id} value={group.name}>
+                          {group.name}
+                        </option>
+                      ))}
                     </select>
                   </Box>
-                </HStack>
 
-                <HStack gap={4}>
-                  <Box flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Address</Text>
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>Comment</Text>
+                    <Textarea
+                      value={formData.comment}
+                      onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+                      rows={3}
+                    />
+                  </Box>
+
+                  <HStack gap={6}>
+                    <HStack gap={2}>
+                      <Text fontSize="sm">Active</Text>
+                      <Switch
+                        isChecked={formData.active}
+                        onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
+                      />
+                    </HStack>
+                    
+                    <HStack gap={2}>
+                      <Text fontSize="sm">Retain</Text>
+                      <Switch
+                        isChecked={formData.retain}
+                        onChange={(e) => setFormData(prev => ({ ...prev, retain: e.target.checked }))}
+                      />
+                    </HStack>
+                  </HStack>
+                </VStack>
+              </TabPanel>
+              
+              <TabPanel>
+                <VStack align="stretch" gap={4}>
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
+                    <select
+                      value={formData.dataSource}
+                      onChange={(e) => setFormData(prev => ({ ...prev, dataSource: e.target.value as Tag['dataSource'] }))}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="Internal">Internal</option>
+                      <option value="MQTT">MQTT</option>
+                      <option value="HTTPS">HTTPS API</option>
+                      <option value="OPC">OPC UA</option>
+                      <option value="Modbus">Modbus TCP</option>
+                    </select>
+                  </Box>
+
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>Device ID</Text>
                     <Input
-                      value={formData.address}
-                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      placeholder="%I0.0"
+                      value={formData.deviceId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, deviceId: e.target.value }))}
+                      placeholder="PLC001, SENSOR001, etc."
                       size="sm"
                     />
                   </Box>
-                  
-                  <Box flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Initial Value</Text>
-                    <Input
-                      value={formData.value}
-                      onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
-                      size="sm"
-                    />
-                  </Box>
-                </HStack>
-
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" mb={1}>Group</Text>
-                  <select
-                    value={formData.group}
-                    onChange={(e) => setFormData(prev => ({ ...prev, group: e.target.value }))}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '6px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    {groups.map(group => (
-                      <option key={group.id} value={group.name}>
-                        {group.name}
-                      </option>
-                    ))}
-                  </select>
-                </Box>
-
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" mb={1}>Comment</Text>
-                  <Textarea
-                    value={formData.comment}
-                    onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
-                    rows={3}
-                  />
-                </Box>
-
-                <HStack gap={6}>
+                </VStack>
+              </TabPanel>
+              
+              <TabPanel>
+                <VStack align="stretch" gap={4}>
                   <HStack gap={2}>
-                    <Text fontSize="sm">Active</Text>
+                    <Text fontSize="sm">Direct Logging</Text>
                     <Switch
-                      checked={formData.active}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, active: checked }))}
+                      isChecked={formData.directLogging}
+                      onChange={(e) => setFormData(prev => ({ ...prev, directLogging: e.target.checked }))}
                     />
                   </HStack>
-                  
+
                   <HStack gap={2}>
-                    <Text fontSize="sm">Retain</Text>
+                    <Text fontSize="sm">Enable Alarms</Text>
                     <Switch
-                      checked={formData.retain}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, retain: checked }))}
+                      isChecked={formData.alarmEnabled}
+                      onChange={(e) => setFormData(prev => ({ ...prev, alarmEnabled: e.target.checked }))}
                     />
                   </HStack>
-                </HStack>
-              </VStack>
-            </TabsContent>
-            
-            <TabsContent value="datasource">
-              <VStack align="stretch" gap={4}>
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
-                  <select
-                    value={formData.dataSource}
-                    onChange={(e) => setFormData(prev => ({ ...prev, dataSource: e.target.value as Tag['dataSource'] }))}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '6px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <option value="Internal">Internal</option>
-                    <option value="MQTT">MQTT</option>
-                    <option value="HTTPS">HTTPS API</option>
-                    <option value="OPC">OPC UA</option>
-                    <option value="Modbus">Modbus TCP</option>
-                  </select>
-                </Box>
-
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" mb={1}>Device ID</Text>
-                  <Input
-                    value={formData.deviceId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, deviceId: e.target.value }))}
-                    placeholder="PLC001, SENSOR001, etc."
-                    size="sm"
-                  />
-                </Box>
-              </VStack>
-            </TabsContent>
-            
-            <TabsContent value="logging">
-              <VStack align="stretch" gap={4}>
-                <HStack gap={2}>
-                  <Text fontSize="sm">Direct Logging</Text>
-                  <Switch
-                    checked={formData.directLogging}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, directLogging: checked }))}
-                  />
-                </HStack>
-
-                <HStack gap={2}>
-                  <Text fontSize="sm">Enable Alarms</Text>
-                  <Switch
-                    checked={formData.alarmEnabled}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, alarmEnabled: checked }))}
-                  />
-                </HStack>
-              </VStack>
-            </TabsContent>
+                </VStack>
+              </TabPanel>
+            </TabPanels>
           </Tabs>
-        </Box>
+        </ModalBody>
 
-        <DialogFooter>
+        <ModalFooter>
           <Button variant="outline" mr={3} onClick={onClose} size="sm">
             Cancel
           </Button>
           <Button colorScheme="blue" onClick={handleSave} size="sm">
             {tag ? 'Update Tag' : 'Create Tag'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 
