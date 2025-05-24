@@ -1,65 +1,40 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Flex,
-  Text,
-  Button,
   VStack,
   HStack,
+  Text,
+  Button,
   Input,
-  Select,
-  IconButton,
-  Badge,
-  useDisclosure,
-  useToast,
   Heading,
-  Divider,
-  Tooltip,
-  Card,
-  CardBody,
-  CardHeader,
+  useDisclosure,
+  Flex,
+  Badge,
+  IconButton,
 } from '@chakra-ui/react';
-import {
-  AddIcon,
-  DeleteIcon,
-  EditIcon,
-  SearchIcon,
-  SettingsIcon,
-  DownloadIcon,
-  UploadIcon,
-  CopyIcon,
-  ViewIcon,
-  ViewOffIcon,
-} from '@chakra-ui/icons';
-import TagTree from './TagTree';
+import { AddIcon, SettingsIcon, EditIcon } from '@chakra-ui/icons';
 import TagTable from './TagTable';
+import TagTree from './TagTree';
 import TagModal from './TagModal';
 import SettingsModal from './SettingsModal';
 import DataSourceModal from './DataSourceModal';
 import { useTagStore } from '../store/tagStore';
 
 const TagFlowCentral = () => {
-  const {
-    tags,
-    groups,
-    selectedTags,
-    searchTerm,
-    filterType,
-    filterGroup,
-    addTag,
+  const { 
+    tags, 
+    groups, 
+    selectedTags, 
+    addTag, 
     deleteSelectedTags,
-    copySelectedTags,
+    searchTerm,
     setSearchTerm,
+    filterType,
     setFilterType,
-    setFilterGroup,
-    exportTags,
-    importTags,
+    filterGroup,
+    setFilterGroup
   } = useTagStore();
-
-  const [activeView, setActiveView] = useState('table');
-  const toast = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     isOpen: isTagModalOpen,
@@ -68,252 +43,178 @@ const TagFlowCentral = () => {
   } = useDisclosure();
 
   const {
-    isOpen: isSettingsOpen,
-    onOpen: onSettingsOpen,
-    onClose: onSettingsClose,
+    isOpen: isSettingsModalOpen,
+    onOpen: onSettingsModalOpen,
+    onClose: onSettingsModalClose,
   } = useDisclosure();
 
   const {
-    isOpen: isDataSourceOpen,
-    onOpen: onDataSourceOpen,
-    onClose: onDataSourceClose,
+    isOpen: isDataSourceModalOpen,
+    onOpen: onDataSourceModalOpen,
+    onClose: onDataSourceModalClose,
   } = useDisclosure();
 
+  const [editingTag, setEditingTag] = useState(null);
+
   const handleAddTag = () => {
+    setEditingTag(null);
+    onTagModalOpen();
+  };
+
+  const handleEditTag = (tag: any) => {
+    setEditingTag(tag);
     onTagModalOpen();
   };
 
   const handleDeleteSelected = () => {
-    if (selectedTags.length === 0) {
-      toast({
-        title: 'No tags selected',
-        description: 'Please select tags to delete',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
+    if (selectedTags.length > 0 && confirm(`Delete ${selectedTags.length} selected tags?`)) {
+      deleteSelectedTags();
     }
-
-    deleteSelectedTags();
-    toast({
-      title: 'Tags deleted',
-      description: `${selectedTags.length} tags have been deleted`,
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
   };
 
-  const handleExport = () => {
-    exportTags();
-    toast({
-      title: 'Export successful',
-      description: 'Tags have been exported to CSV',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-  };
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      importTags(file);
-      toast({
-        title: 'Import successful',
-        description: 'Tags have been imported',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-    event.target.value = '';
-  };
-
-  const filteredTags = tags.filter(tag => {
-    const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tag.comment.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'All' || tag.dataType === filterType;
-    const matchesGroup = filterGroup === 'All' || tag.group === filterGroup;
-    return matchesSearch && matchesType && matchesGroup;
-  });
+  const dataTypes = ['Bool', 'Byte', 'Word', 'DWord', 'SInt', 'Int', 'DInt', 'USInt', 'UInt', 'UDInt', 'Real', 'LReal', 'String', 'Char', 'Time', 'Date'];
 
   return (
-    <Box h="100vh" display="flex" flexDirection="column">
+    <Box h="100vh" bg="gray.50">
       {/* Header */}
-      <Card mb={0} borderRadius={0} borderBottom="2px" borderColor="brand.500">
-        <CardBody py={4}>
-          <Flex justify="space-between" align="center">
-            <VStack align="start" spacing={0}>
-              <Heading size="lg" color="industrial.800">
-                Tag Flow Central
-              </Heading>
-              <Text color="industrial.600" fontSize="sm">
-                Industrial Automation Tag Management System
-              </Text>
-            </VStack>
-            <HStack spacing={2}>
-              <Badge colorScheme="green" px={3} py={1} borderRadius="full">
-                {tags.length} Total Tags
-              </Badge>
-              <Badge colorScheme="blue" px={3} py={1} borderRadius="full">
-                {filteredTags.length} Filtered
-              </Badge>
-              <Badge colorScheme="orange" px={3} py={1} borderRadius="full">
-                {selectedTags.length} Selected
-              </Badge>
-            </HStack>
-          </Flex>
-        </CardBody>
-      </Card>
+      <Box bg="white" borderBottom="1px" borderColor="gray.200" p={6}>
+        <Heading size="lg" color="industrial.800" mb={2}>
+          TagFlow Central
+        </Heading>
+        <Text color="gray.600">
+          Industrial tag management system with real-time data connectivity
+        </Text>
+      </Box>
 
       {/* Toolbar */}
-      <Card mb={0} borderRadius={0} bg="white" borderBottom="1px" borderColor="gray.200">
-        <CardBody py={3}>
-          <Flex justify="space-between" align="center" flexWrap="wrap" gap={4}>
-            {/* Left side - Actions */}
-            <HStack spacing={2}>
-              <Button
-                leftIcon={<AddIcon />}
-                colorScheme="brand"
-                onClick={handleAddTag}
-                size="sm"
-              >
-                Add Tag
-              </Button>
-              
-              <Button
-                leftIcon={<DeleteIcon />}
-                colorScheme="red"
-                onClick={handleDeleteSelected}
-                isDisabled={selectedTags.length === 0}
-                size="sm"
-              >
-                Delete ({selectedTags.length})
-              </Button>
+      <Box bg="white" borderBottom="1px" borderColor="gray.200" p={4}>
+        <Flex wrap="wrap" gap={4} align="center">
+          {/* Left side - Action buttons */}
+          <HStack>
+            <Button
+              onClick={handleAddTag}
+              colorScheme="brand"
+              size="sm"
+            >
+              <AddIcon mr={2} />
+              Add Tag
+            </Button>
+            
+            <Button
+              onClick={handleDeleteSelected}
+              colorScheme="red"
+              size="sm"
+              isDisabled={selectedTags.length === 0}
+            >
+              Delete ({selectedTags.length})
+            </Button>
 
-              <Button
-                leftIcon={<CopyIcon />}
-                colorScheme="green"
-                onClick={copySelectedTags}
-                isDisabled={selectedTags.length === 0}
-                size="sm"
-              >
-                Copy
-              </Button>
+            <Button
+              onClick={onDataSourceModalOpen}
+              variant="outline"
+              size="sm"
+            >
+              Data Sources
+            </Button>
 
-              <Divider orientation="vertical" h="6" />
+            <Button
+              onClick={onSettingsModalOpen}
+              variant="outline"
+              size="sm"
+            >
+              <SettingsIcon mr={2} />
+              Settings
+            </Button>
+          </HStack>
 
-              <Tooltip label="Column Settings">
-                <IconButton
-                  aria-label="Settings"
-                  icon={<SettingsIcon />}
-                  onClick={onSettingsOpen}
-                  variant="ghost"
-                  size="sm"
-                />
-              </Tooltip>
+          {/* Right side - Filters */}
+          <HStack ml="auto">
+            <Input
+              placeholder="Search tags..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="sm"
+              maxW="200px"
+            />
 
-              <Tooltip label="Data Sources">
-                <IconButton
-                  aria-label="Data Sources"
-                  icon={<EditIcon />}
-                  onClick={onDataSourceOpen}
-                  variant="ghost"
-                  size="sm"
-                />
-              </Tooltip>
-            </HStack>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                fontSize: '14px',
+                backgroundColor: 'white'
+              }}
+            >
+              <option value="All">All Types</option>
+              {dataTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
 
-            {/* Right side - Filters and Search */}
-            <HStack spacing={3}>
-              <HStack spacing={2}>
-                <SearchIcon color="gray.400" />
-                <Input
-                  placeholder="Search tags..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  size="sm"
-                  w="200px"
-                />
-              </HStack>
+            <select
+              value={filterGroup}
+              onChange={(e) => setFilterGroup(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                fontSize: '14px',
+                backgroundColor: 'white'
+              }}
+            >
+              <option value="All">All Groups</option>
+              {groups.map(group => (
+                <option key={group.id} value={group.name}>{group.name}</option>
+              ))}
+            </select>
+          </HStack>
+        </Flex>
 
-              <Select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                size="sm"
-                w="120px"
-              >
-                <option value="All">All Types</option>
-                <option value="Bool">Bool</option>
-                <option value="Int">Int</option>
-                <option value="Real">Real</option>
-                <option value="String">String</option>
-              </Select>
-
-              <Select
-                value={filterGroup}
-                onChange={(e) => setFilterGroup(e.target.value)}
-                size="sm"
-                w="120px"
-              >
-                <option value="All">All Groups</option>
-                {groups.map(group => (
-                  <option key={group.id} value={group.name}>
-                    {group.name}
-                  </option>
-                ))}
-              </Select>
-
-              <Divider orientation="vertical" h="6" />
-
-              <Button
-                leftIcon={<DownloadIcon />}
-                onClick={handleExport}
-                size="sm"
-                variant="outline"
-              >
-                Export
-              </Button>
-
-              <Button
-                leftIcon={<UploadIcon />}
-                onClick={() => fileInputRef.current?.click()}
-                size="sm"
-                variant="outline"
-              >
-                Import
-              </Button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".csv,.json"
-                onChange={handleImport}
-                style={{ display: 'none' }}
-              />
-            </HStack>
-          </Flex>
-        </CardBody>
-      </Card>
+        {/* Status bar */}
+        <HStack justify="space-between" mt={3} pt={3} borderTop="1px" borderColor="gray.100">
+          <HStack>
+            <Badge>Total: {tags.length}</Badge>
+            <Badge colorScheme="blue">Selected: {selectedTags.length}</Badge>
+            <Badge colorScheme="green">Active: {tags.filter(t => t.active).length}</Badge>
+          </HStack>
+          <Text fontSize="sm" color="gray.500">
+            Last updated: {new Date().toLocaleString()}
+          </Text>
+        </HStack>
+      </Box>
 
       {/* Main Content */}
-      <Flex flex={1} overflow="hidden">
-        {/* Left Sidebar - Tag Tree */}
-        <Box w="300px" borderRight="1px" borderColor="gray.200" bg="white">
+      <Flex h="calc(100vh - 160px)">
+        {/* Left Panel - Tag Tree */}
+        <Box w="300px" bg="white" borderRight="1px" borderColor="gray.200">
           <TagTree />
         </Box>
 
-        {/* Main Table Area */}
-        <Box flex={1} overflow="hidden">
-          <TagTable />
+        {/* Right Panel - Tag Table */}
+        <Box flex={1} bg="white">
+          <TagTable onEditTag={handleEditTag} />
         </Box>
       </Flex>
 
       {/* Modals */}
-      <TagModal isOpen={isTagModalOpen} onClose={onTagModalClose} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
-      <DataSourceModal isOpen={isDataSourceOpen} onClose={onDataSourceClose} />
+      <TagModal
+        isOpen={isTagModalOpen}
+        onClose={onTagModalClose}
+        tag={editingTag}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={onSettingsModalClose}
+      />
+
+      <DataSourceModal
+        isOpen={isDataSourceModalOpen}
+        onClose={onDataSourceModalClose}
+      />
     </Box>
   );
 };
