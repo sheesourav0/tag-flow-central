@@ -2,14 +2,13 @@
 import React from 'react';
 import {
   Text,
-  Badge,
-  HStack,
-  IconButton,
   Input,
-  Select,
   Switch,
+  Badge,
+  IconButton,
+  HStack,
 } from '@chakra-ui/react';
-import { SettingsIcon } from '@chakra-ui/icons';
+import { EditIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { DatabaseTag } from '../../services/tagService';
 
 interface TableCellProps {
@@ -37,51 +36,39 @@ const TableCell: React.FC<TableCellProps> = ({
 }) => {
   const value = tag[column.key as keyof DatabaseTag];
 
-  if (isEditing) {
-    if (column.key === 'data_type') {
-      return (
-        <Select
-          value={editValue}
-          onChange={(e) => onEditValueChange(e.target.value)}
-          onBlur={() => onEditSave(editValue)}
-          size="sm"
-          autoFocus
-        >
-          <option value="Bool">Bool</option>
-          <option value="Int">Int</option>
-          <option value="Real">Real</option>
-          <option value="String">String</option>
-        </Select>
-      );
-    } else if (['active', 'retain', 'direct_logging', 'alarm_enabled'].includes(column.key)) {
-      return (
-        <Switch
-          isChecked={editValue === 'true'}
-          onChange={(e) => onEditSave(e.target.checked)}
-        />
-      );
-    } else {
-      return (
-        <Input
-          value={editValue}
-          onChange={(e) => onEditValueChange(e.target.value)}
-          onBlur={() => onEditSave(editValue)}
-          onKeyPress={(e) => e.key === 'Enter' && onEditSave(editValue)}
-          size="sm"
-          autoFocus
-        />
-      );
-    }
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Connected': return 'green';
-      case 'Disconnected': return 'gray';
-      case 'Error': return 'red';
-      default: return 'yellow';
+      case 'Disconnected': return 'red';
+      case 'Connecting': return 'yellow';
+      default: return 'gray';
     }
   };
+
+  if (isEditing && column.key !== 'active' && column.key !== 'retain') {
+    return (
+      <HStack spacing={1}>
+        <Input
+          value={editValue}
+          onChange={(e) => onEditValueChange(e.target.value)}
+          size="xs"
+          autoFocus
+        />
+        <IconButton
+          aria-label="Save"
+          size="xs"
+          icon={<CheckIcon />}
+          onClick={() => onEditSave(editValue)}
+        />
+        <IconButton
+          aria-label="Cancel"
+          size="xs"
+          icon={<CloseIcon />}
+          onClick={() => onEditStart('')}
+        />
+      </HStack>
+    );
+  }
 
   switch (column.key) {
     case 'active':
@@ -90,59 +77,51 @@ const TableCell: React.FC<TableCellProps> = ({
     case 'alarm_enabled':
       return (
         <Switch
-          isChecked={value as boolean}
+          isChecked={Boolean(value)}
           onChange={(e) => onToggle(column.key, e.target.checked)}
+          size="sm"
         />
       );
-    
+
     case 'connection_status':
       return (
-        <Badge colorScheme={getStatusColor(value as string)} size="sm">
-          {value as string}
+        <Badge colorScheme={getStatusColor(String(value))}>
+          {String(value)}
         </Badge>
       );
-    
-    case 'data_source':
+
+    case 'name':
       return (
-        <HStack spacing={1}>
-          <Badge
-            colorScheme={
-              value === 'Internal' ? 'gray' :
-              value === 'MQTT' ? 'purple' :
-              value === 'OPC' ? 'orange' : 'blue'
-            }
-            size="sm"
+        <HStack spacing={2}>
+          <Text
+            fontSize="sm"
+            cursor="pointer"
+            _hover={{ color: 'blue.500' }}
+            onClick={() => onTagEdit(tag)}
           >
-            {value as string}
-          </Badge>
+            {String(value)}
+          </Text>
           <IconButton
-            aria-label="Configure data source"
+            aria-label="Edit tag"
             size="xs"
             variant="ghost"
+            icon={<EditIcon />}
             onClick={() => onTagEdit(tag)}
-            icon={<SettingsIcon />}
           />
         </HStack>
       );
-    
-    case 'updated_at':
-      return (
-        <Text fontSize="xs" color="gray.600">
-          {new Date(value as string).toLocaleString()}
-        </Text>
-      );
-    
+
     default:
       return (
         <Text
           fontSize="sm"
           cursor="pointer"
-          onClick={() => onEditStart(value?.toString() || '')}
-          _hover={{ bg: 'gray.50' }}
+          onClick={() => onEditStart(String(value || ''))}
+          _hover={{ bg: 'gray.100' }}
           p={1}
-          borderRadius="sm"
+          borderRadius="md"
         >
-          {value?.toString() || ''}
+          {String(value || '')}
         </Text>
       );
   }

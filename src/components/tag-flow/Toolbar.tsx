@@ -2,14 +2,29 @@
 import React from 'react';
 import {
   Box,
-  Flex,
   HStack,
+  VStack,
+  Text,
   Button,
   Input,
+  Select,
+  InputGroup,
+  InputLeftElement,
   Badge,
-  Text,
+  IconButton,
+  Tooltip,
+  Divider,
 } from '@chakra-ui/react';
-import { AddIcon, SettingsIcon } from '@chakra-ui/icons';
+import { 
+  AddIcon, 
+  DeleteIcon, 
+  SearchIcon, 
+  SettingsIcon, 
+  DownloadIcon,
+  UploadIcon,
+  RepeatIcon
+} from '@chakra-ui/icons';
+import { DatabaseGroup } from '../../services/tagService';
 
 interface ToolbarProps {
   selectedCount: number;
@@ -18,14 +33,14 @@ interface ToolbarProps {
   searchTerm: string;
   filterType: string;
   filterGroup: string;
-  groups: any[];
+  groups: DatabaseGroup[];
   onAddTag: () => void;
   onDeleteSelected: () => void;
   onDataSources: () => void;
   onSettings: () => void;
-  onSearchChange: (value: string) => void;
-  onFilterTypeChange: (value: string) => void;
-  onFilterGroupChange: (value: string) => void;
+  onSearchChange: (term: string) => void;
+  onFilterTypeChange: (type: string) => void;
+  onFilterGroupChange: (group: string) => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -44,106 +59,130 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onFilterTypeChange,
   onFilterGroupChange,
 }) => {
-  const dataTypes = ['Bool', 'Byte', 'Word', 'DWord', 'Int', 'DInt', 'Real', 'String'];
+  const dataTypes = ['All', 'Bool', 'Int16', 'Int32', 'Real', 'String', 'DateTime'];
 
   return (
     <Box bg="white" borderBottom="1px" borderColor="gray.200" p={4}>
-      <Flex wrap="wrap" gap={4} align="center">
-        {/* Left side - Action buttons */}
-        <HStack gap={2}>
-          <Button
-            onClick={onAddTag}
-            colorScheme="blue"
-            size="sm"
-            leftIcon={<AddIcon />}
-          >
-            Add Tag
-          </Button>
-          
-          <Button
-            onClick={onDeleteSelected}
-            colorScheme="red"
-            size="sm"
-            disabled={selectedCount === 0}
-          >
-            Delete ({selectedCount})
-          </Button>
+      <VStack spacing={4} align="stretch">
+        {/* Top Row - Actions and Stats */}
+        <HStack justify="space-between">
+          <HStack spacing={3}>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="blue"
+              size="sm"
+              onClick={onAddTag}
+            >
+              Add Tag
+            </Button>
+            
+            <Button
+              leftIcon={<DeleteIcon />}
+              colorScheme="red"
+              variant="outline"
+              size="sm"
+              isDisabled={selectedCount === 0}
+              onClick={onDeleteSelected}
+            >
+              Delete ({selectedCount})
+            </Button>
+            
+            <Divider orientation="vertical" h="24px" />
+            
+            <Tooltip label="Data Sources">
+              <IconButton
+                aria-label="Data sources"
+                icon={<RepeatIcon />}
+                size="sm"
+                variant="outline"
+                onClick={onDataSources}
+              />
+            </Tooltip>
+            
+            <Tooltip label="Import Tags">
+              <IconButton
+                aria-label="Import"
+                icon={<UploadIcon />}
+                size="sm"
+                variant="outline"
+              />
+            </Tooltip>
+            
+            <Tooltip label="Export Tags">
+              <IconButton
+                aria-label="Export"
+                icon={<DownloadIcon />}
+                size="sm"
+                variant="outline"
+              />
+            </Tooltip>
+            
+            <Tooltip label="Settings">
+              <IconButton
+                aria-label="Settings"
+                icon={<SettingsIcon />}
+                size="sm"
+                variant="outline"
+                onClick={onSettings}
+              />
+            </Tooltip>
+          </HStack>
 
-          <Button
-            onClick={onDataSources}
-            variant="outline"
-            size="sm"
-          >
-            Data Sources
-          </Button>
-
-          <Button
-            onClick={onSettings}
-            variant="outline"
-            size="sm"
-            leftIcon={<SettingsIcon />}
-          >
-            Settings
-          </Button>
+          <HStack spacing={4}>
+            <VStack spacing={0} align="end">
+              <Text fontSize="sm" fontWeight="semibold">
+                {totalTags} Total Tags
+              </Text>
+              <Text fontSize="xs" color="gray.500">
+                {activeTags} Active
+              </Text>
+            </VStack>
+            
+            {selectedCount > 0 && (
+              <Badge colorScheme="blue" fontSize="sm" p={2}>
+                {selectedCount} Selected
+              </Badge>
+            )}
+          </HStack>
         </HStack>
 
-        {/* Right side - Filters */}
-        <HStack ml="auto" gap={2}>
-          <Input
-            placeholder="Search tags..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+        {/* Bottom Row - Search and Filters */}
+        <HStack spacing={4}>
+          <InputGroup size="sm" maxW="300px">
+            <InputLeftElement>
+              <SearchIcon color="gray.400" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search tags..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </InputGroup>
+          
+          <Select
             size="sm"
-            maxW="200px"
-          />
-
-          <select
+            maxW="150px"
             value={filterType}
             onChange={(e) => onFilterTypeChange(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #e2e8f0',
-              borderRadius: '6px',
-              fontSize: '14px',
-              backgroundColor: 'white'
-            }}
           >
-            <option value="All">All Types</option>
             {dataTypes.map(type => (
               <option key={type} value={type}>{type}</option>
             ))}
-          </select>
-
-          <select
+          </Select>
+          
+          <Select
+            size="sm"
+            maxW="150px"
             value={filterGroup}
             onChange={(e) => onFilterGroupChange(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #e2e8f0',
-              borderRadius: '6px',
-              fontSize: '14px',
-              backgroundColor: 'white'
-            }}
           >
             <option value="All">All Groups</option>
             {groups.map(group => (
               <option key={group.id} value={group.name}>{group.name}</option>
             ))}
-          </select>
+          </Select>
         </HStack>
-      </Flex>
-
-      {/* Status bar */}
-      <HStack justify="space-between" mt={3} pt={3} borderTop="1px" borderColor="gray.100">
-        <HStack gap={2}>
-          <Badge>Total: {totalTags}</Badge>
-          <Badge colorScheme="blue">Selected: {selectedCount}</Badge>
-          <Badge colorScheme="green">Active: {activeTags}</Badge>
-        </HStack>
-        <Text fontSize="sm" color="gray.500">
-          Last updated: {new Date().toLocaleString()}
-        </Text>
-      </HStack>
+      </VStack>
     </Box>
   );
 };

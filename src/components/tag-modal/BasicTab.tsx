@@ -3,12 +3,13 @@ import React from 'react';
 import {
   VStack,
   HStack,
-  Box,
-  Text,
+  FormControl,
+  FormLabel,
   Input,
   Select,
   Textarea,
   Switch,
+  Text,
 } from '@chakra-ui/react';
 import { useGroups } from '../../hooks/useGroups';
 
@@ -20,98 +21,103 @@ interface BasicTabProps {
 const BasicTab: React.FC<BasicTabProps> = ({ formData, setFormData }) => {
   const { groups } = useGroups();
 
+  const dataTypes = ['Bool', 'Int16', 'Int32', 'Real', 'String', 'DateTime'];
+
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
   return (
-    <VStack align="stretch" spacing={4}>
+    <VStack spacing={4} align="stretch">
       <HStack spacing={4}>
-        <Box flex={2}>
-          <Text fontSize="sm" fontWeight="medium" mb={1}>Tag Name</Text>
+        <FormControl isRequired>
+          <FormLabel fontSize="sm">Tag Name</FormLabel>
           <Input
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Enter tag name"
             size="sm"
           />
-        </Box>
+        </FormControl>
         
-        <Box flex={1}>
-          <Text fontSize="sm" fontWeight="medium" mb={1}>Data Type</Text>
+        <FormControl isRequired>
+          <FormLabel fontSize="sm">Data Type</FormLabel>
           <Select
             value={formData.data_type}
-            onChange={(e) => setFormData(prev => ({ ...prev, data_type: e.target.value }))}
+            onChange={(e) => handleChange('data_type', e.target.value)}
             size="sm"
           >
-            <option value="Bool">Bool</option>
-            <option value="Byte">Byte</option>
-            <option value="Word">Word</option>
-            <option value="DWord">DWord</option>
-            <option value="Int">Int</option>
-            <option value="DInt">DInt</option>
-            <option value="Real">Real</option>
-            <option value="String">String</option>
+            {dataTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </Select>
-        </Box>
+        </FormControl>
       </HStack>
 
       <HStack spacing={4}>
-        <Box flex={1}>
-          <Text fontSize="sm" fontWeight="medium" mb={1}>Address</Text>
+        <FormControl isRequired>
+          <FormLabel fontSize="sm">Address</FormLabel>
           <Input
             value={formData.address}
-            onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-            placeholder="%I0.0"
+            onChange={(e) => handleChange('address', e.target.value)}
+            placeholder="Tag address"
             size="sm"
           />
-        </Box>
+        </FormControl>
         
-        <Box flex={1}>
-          <Text fontSize="sm" fontWeight="medium" mb={1}>Initial Value</Text>
+        <FormControl>
+          <FormLabel fontSize="sm">Initial Value</FormLabel>
           <Input
             value={formData.value}
-            onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
+            onChange={(e) => handleChange('value', e.target.value)}
+            placeholder="Initial value"
             size="sm"
           />
-        </Box>
+        </FormControl>
       </HStack>
 
-      <Box>
-        <Text fontSize="sm" fontWeight="medium" mb={1}>Group</Text>
+      <FormControl>
+        <FormLabel fontSize="sm">Group</FormLabel>
         <Select
           value={formData.group_name}
-          onChange={(e) => setFormData(prev => ({ ...prev, group_name: e.target.value }))}
+          onChange={(e) => handleChange('group_name', e.target.value)}
           size="sm"
         >
           {groups.map(group => (
-            <option key={group.id} value={group.name}>
-              {group.name}
-            </option>
+            <option key={group.id} value={group.name}>{group.name}</option>
           ))}
         </Select>
-      </Box>
+      </FormControl>
 
-      <Box>
-        <Text fontSize="sm" fontWeight="medium" mb={1}>Comment</Text>
+      <FormControl>
+        <FormLabel fontSize="sm">Comment</FormLabel>
         <Textarea
           value={formData.comment}
-          onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+          onChange={(e) => handleChange('comment', e.target.value)}
+          placeholder="Optional description"
+          size="sm"
           rows={3}
         />
-      </Box>
+      </FormControl>
 
       <HStack spacing={6}>
-        <HStack spacing={2}>
-          <Text fontSize="sm">Active</Text>
+        <FormControl display="flex" alignItems="center">
+          <FormLabel fontSize="sm" mb="0">Active</FormLabel>
           <Switch
             isChecked={formData.active}
-            onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
+            onChange={(e) => handleChange('active', e.target.checked)}
+            size="sm"
           />
-        </HStack>
+        </FormControl>
         
-        <HStack spacing={2}>
-          <Text fontSize="sm">Retain</Text>
+        <FormControl display="flex" alignItems="center">
+          <FormLabel fontSize="sm" mb="0">Retain Value</FormLabel>
           <Switch
             isChecked={formData.retain}
-            onChange={(e) => setFormData(prev => ({ ...prev, retain: e.target.checked }))}
+            onChange={(e) => handleChange('retain', e.target.checked)}
+            size="sm"
           />
-        </HStack>
+        </FormControl>
       </HStack>
     </VStack>
   );
