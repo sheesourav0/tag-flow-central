@@ -41,7 +41,10 @@ const TagTree = () => {
   const handleAddGroup = () => {
     const groupName = prompt('Enter group name:');
     if (groupName && !groups.find(g => g.name === groupName)) {
-      createGroup({ name: groupName });
+      createGroup({ 
+        name: groupName,
+        expanded: true
+      });
     }
   };
 

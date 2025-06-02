@@ -64,6 +64,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
     alarm_enabled: false,
     alarm_high_limit: 100,
     alarm_low_limit: 0,
+    connection_status: 'Unknown' as string,
   });
 
   useEffect(() => {
@@ -89,6 +90,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
         alarm_enabled: tag.alarm_enabled || false,
         alarm_high_limit: tag.alarm_high_limit || 100,
         alarm_low_limit: tag.alarm_low_limit || 0,
+        connection_status: tag.connection_status || 'Unknown',
       });
     } else {
       setFormData({
@@ -112,6 +114,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
         alarm_enabled: false,
         alarm_high_limit: 100,
         alarm_low_limit: 0,
+        connection_status: 'Unknown',
       });
     }
   }, [tag, isOpen, groups]);
@@ -143,8 +146,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               <Box flex={1}>
                 <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
                 <Select
-                  value={formData.updateInterval}
-                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  value={formData.update_interval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, update_interval: e.target.value }))}
                   size="sm"
                 >
                   <option value="100ms">100ms</option>
@@ -191,8 +194,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               <Box flex={1}>
                 <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
                 <Select
-                  value={formData.updateInterval}
-                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  value={formData.update_interval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, update_interval: e.target.value }))}
                   size="sm"
                 >
                   <option value="500ms">500ms</option>
@@ -247,8 +250,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               <Box flex={1}>
                 <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
                 <Select
-                  value={formData.updateInterval}
-                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  value={formData.update_interval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, update_interval: e.target.value }))}
                   size="sm"
                 >
                   <option value="1s">1 second</option>
@@ -285,8 +288,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
               <Box flex={1}>
                 <Text fontSize="sm" fontWeight="medium" mb={1}>Update Interval</Text>
                 <Select
-                  value={formData.updateInterval}
-                  onChange={(e) => setFormData(prev => ({ ...prev, updateInterval: e.target.value }))}
+                  value={formData.update_interval}
+                  onChange={(e) => setFormData(prev => ({ ...prev, update_interval: e.target.value }))}
                   size="sm"
                 >
                   <option value="5s">5 seconds</option>
@@ -461,8 +464,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Device ID</Text>
                     <Input
-                      value={formData.deviceId}
-                      onChange={(e) => setFormData(prev => ({ ...prev, deviceId: e.target.value }))}
+                      value={formData.device_id}
+                      onChange={(e) => setFormData(prev => ({ ...prev, device_id: e.target.value }))}
                       placeholder="PLC001, SENSOR001, etc."
                       size="sm"
                     />
@@ -477,17 +480,17 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   <HStack spacing={2}>
                     <Text fontSize="sm">Direct Logging</Text>
                     <Switch
-                      isChecked={formData.directLogging}
-                      onChange={(e) => setFormData(prev => ({ ...prev, directLogging: e.target.checked }))}
+                      isChecked={formData.direct_logging}
+                      onChange={(e) => setFormData(prev => ({ ...prev, direct_logging: e.target.checked }))}
                     />
                   </HStack>
 
-                  {formData.directLogging && (
+                  {formData.direct_logging && (
                     <Box>
                       <Text fontSize="sm" fontWeight="medium" mb={1}>Log Duration</Text>
                       <Select
-                        value={formData.logDuration}
-                        onChange={(e) => setFormData(prev => ({ ...prev, logDuration: e.target.value }))}
+                        value={formData.log_duration}
+                        onChange={(e) => setFormData(prev => ({ ...prev, log_duration: e.target.value }))}
                         size="sm"
                       >
                         <option value="1h">1 hour</option>
@@ -503,12 +506,12 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   <HStack spacing={2}>
                     <Text fontSize="sm">Enable Alarms</Text>
                     <Switch
-                      isChecked={formData.alarmEnabled}
-                      onChange={(e) => setFormData(prev => ({ ...prev, alarmEnabled: e.target.checked }))}
+                      isChecked={formData.alarm_enabled}
+                      onChange={(e) => setFormData(prev => ({ ...prev, alarm_enabled: e.target.checked }))}
                     />
                   </HStack>
 
-                  {formData.alarmEnabled && (
+                  {formData.alarm_enabled && (
                     <VStack align="stretch" spacing={4}>
                       <Text fontSize="sm" fontWeight="medium" color="orange.600">
                         Alarm Configuration
@@ -518,9 +521,9 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                         <Box flex={1}>
                           <Text fontSize="sm" fontWeight="medium" mb={1}>High Limit</Text>
                           <NumberInput
-                            value={formData.alarmHighLimit}
+                            value={formData.alarm_high_limit}
                             onChange={(valueString, valueNumber) => 
-                              setFormData(prev => ({ ...prev, alarmHighLimit: valueNumber || 100 }))
+                              setFormData(prev => ({ ...prev, alarm_high_limit: valueNumber || 100 }))
                             }
                             size="sm"
                           >
@@ -535,9 +538,9 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                         <Box flex={1}>
                           <Text fontSize="sm" fontWeight="medium" mb={1}>Low Limit</Text>
                           <NumberInput
-                            value={formData.alarmLowLimit}
+                            value={formData.alarm_low_limit}
                             onChange={(valueString, valueNumber) => 
-                              setFormData(prev => ({ ...prev, alarmLowLimit: valueNumber || 0 }))
+                              setFormData(prev => ({ ...prev, alarm_low_limit: valueNumber || 0 }))
                             }
                             size="sm"
                           >
@@ -552,8 +555,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
 
                       <Box p={3} bg="orange.50" borderRadius="md" borderLeft="4px" borderColor="orange.400">
                         <Text fontSize="xs" color="orange.700">
-                          Alarms will trigger when the tag value exceeds the high limit ({formData.alarmHighLimit}) 
-                          or falls below the low limit ({formData.alarmLowLimit}).
+                          Alarms will trigger when the tag value exceeds the high limit ({formData.alarm_high_limit}) 
+                          or falls below the low limit ({formData.alarm_low_limit}).
                         </Text>
                       </Box>
                     </VStack>
