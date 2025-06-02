@@ -10,54 +10,70 @@ import {
   Heading,
   Flex,
   Badge,
-  IconButton,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AddIcon, SettingsIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, SettingsIcon } from '@chakra-ui/icons';
 import TagTable from './TagTable';
 import TagTree from './TagTree';
 import TagModal from './TagModal';
 import SettingsModal from './SettingsModal';
 import DataSourceModal from './DataSourceModal';
+import { useTags } from '../hooks/useTags';
+import { useGroups } from '../hooks/useGroups';
 import { useTagStore } from '../store/tagStore';
+import { DatabaseTag } from '../services/tagService';
 
 const TagFlowCentral = () => {
   const { 
     tags, 
-    groups, 
+    isLoading: tagsLoading,
+    deleteTags
+  } = useTags();
+  
+  const { groups } = useGroups();
+  
+  const { 
     selectedTags, 
-    addTag, 
-    deleteSelectedTags,
     searchTerm,
     setSearchTerm,
     filterType,
     setFilterType,
     filterGroup,
-    setFilterGroup
+    setFilterGroup,
+    clearSelection
   } = useTagStore();
 
   const tagModalDisclosure = useDisclosure();
   const settingsModalDisclosure = useDisclosure();
   const dataSourceModalDisclosure = useDisclosure();
-  const [editingTag, setEditingTag] = useState(null);
+  const [editingTag, setEditingTag] = useState<DatabaseTag | null>(null);
 
   const handleAddTag = () => {
     setEditingTag(null);
     tagModalDisclosure.onOpen();
   };
 
-  const handleEditTag = (tag: any) => {
+  const handleEditTag = (tag: DatabaseTag) => {
     setEditingTag(tag);
     tagModalDisclosure.onOpen();
   };
 
   const handleDeleteSelected = () => {
     if (selectedTags.length > 0 && confirm(`Delete ${selectedTags.length} selected tags?`)) {
-      deleteSelectedTags();
+      deleteTags(selectedTags);
+      clearSelection();
     }
   };
 
-  const dataTypes = ['Bool', 'Byte', 'Word', 'DWord', 'SInt', 'Int', 'DInt', 'USInt', 'UInt', 'UDInt', 'Real', 'LReal', 'String', 'Char', 'Time', 'Date'];
+  const dataTypes = ['Bool', 'Byte', 'Word', 'DWord', 'Int', 'DInt', 'Real', 'String'];
+
+  if (tagsLoading) {
+    return (
+      <Box h="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center">
+        <Text>Loading tags...</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box h="100vh" bg="gray.50">

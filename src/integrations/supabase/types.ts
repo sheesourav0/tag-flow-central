@@ -9,7 +9,125 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      groups: {
+        Row: {
+          created_at: string
+          description: string | null
+          expanded: boolean | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expanded?: boolean | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expanded?: boolean | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          active: boolean | null
+          address: string
+          alarm_enabled: boolean | null
+          alarm_high_limit: number | null
+          alarm_low_limit: number | null
+          comment: string | null
+          connection_status: string | null
+          created_at: string
+          data_source: string
+          data_type: string
+          device_id: string | null
+          direct_logging: boolean | null
+          group_name: string
+          id: string
+          log_duration: string | null
+          modbus_register: number | null
+          mqtt_path: string | null
+          multiplier: number | null
+          name: string
+          opc_node_id: string | null
+          retain: boolean | null
+          update_interval: string | null
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address: string
+          alarm_enabled?: boolean | null
+          alarm_high_limit?: number | null
+          alarm_low_limit?: number | null
+          comment?: string | null
+          connection_status?: string | null
+          created_at?: string
+          data_source: string
+          data_type: string
+          device_id?: string | null
+          direct_logging?: boolean | null
+          group_name: string
+          id?: string
+          log_duration?: string | null
+          modbus_register?: number | null
+          mqtt_path?: string | null
+          multiplier?: number | null
+          name: string
+          opc_node_id?: string | null
+          retain?: boolean | null
+          update_interval?: string | null
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string
+          alarm_enabled?: boolean | null
+          alarm_high_limit?: number | null
+          alarm_low_limit?: number | null
+          comment?: string | null
+          connection_status?: string | null
+          created_at?: string
+          data_source?: string
+          data_type?: string
+          device_id?: string | null
+          direct_logging?: boolean | null
+          group_name?: string
+          id?: string
+          log_duration?: string | null
+          modbus_register?: number | null
+          mqtt_path?: string | null
+          multiplier?: number | null
+          name?: string
+          opc_node_id?: string | null
+          retain?: boolean | null
+          update_interval?: string | null
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

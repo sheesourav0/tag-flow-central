@@ -7,10 +7,6 @@ import {
   Text,
   IconButton,
   Badge,
-  Card,
-  CardBody,
-  CardHeader,
-  Heading,
   Button,
   useDisclosure,
   Collapse,
@@ -21,33 +17,37 @@ import {
   AddIcon,
   SettingsIcon,
 } from '@chakra-ui/icons';
+import { useTags } from '../hooks/useTags';
+import { useGroups } from '../hooks/useGroups';
 import { useTagStore } from '../store/tagStore';
 
 const TagTree = () => {
-  const { groups, tags, selectedTags, selectTag, addGroup } = useTagStore();
+  const { tags } = useTags();
+  const { groups, createGroup } = useGroups();
+  const { selectedTags, selectTag } = useTagStore();
 
   const getTagCountForGroup = (groupName: string) => {
-    return tags.filter(tag => tag.group === groupName).length;
+    return tags.filter(tag => tag.group_name === groupName).length;
   };
 
   const getActiveTagCountForGroup = (groupName: string) => {
-    return tags.filter(tag => tag.group === groupName && tag.active).length;
+    return tags.filter(tag => tag.group_name === groupName && tag.active).length;
   };
 
   const getConnectedTagCountForGroup = (groupName: string) => {
-    return tags.filter(tag => tag.group === groupName && tag.connectionStatus === 'Connected').length;
+    return tags.filter(tag => tag.group_name === groupName && tag.connection_status === 'Connected').length;
   };
 
   const handleAddGroup = () => {
     const groupName = prompt('Enter group name:');
     if (groupName && !groups.find(g => g.name === groupName)) {
-      addGroup({ name: groupName });
+      createGroup({ name: groupName });
     }
   };
 
   const GroupItem = ({ group }: { group: any }) => {
     const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: group.expanded });
-    const groupTags = tags.filter(tag => tag.group === group.name);
+    const groupTags = tags.filter(tag => tag.group_name === group.name);
     const totalTags = getTagCountForGroup(group.name);
     const activeTags = getActiveTagCountForGroup(group.name);
     const connectedTags = getConnectedTagCountForGroup(group.name);
@@ -113,21 +113,21 @@ const TagTree = () => {
                       w={2}
                       h={2}
                       borderRadius="full"
-                      bg={tag.connectionStatus === 'Connected' ? 'green.500' : 
-                          tag.connectionStatus === 'Error' ? 'red.500' : 'gray.400'}
+                      bg={tag.connection_status === 'Connected' ? 'green.500' : 
+                          tag.connection_status === 'Error' ? 'red.500' : 'gray.400'}
                     />
                     <Text fontSize="xs" flex={1}>
                       {tag.name}
                     </Text>
                     <Badge
                       colorScheme={
-                        tag.dataSource === 'Internal' ? 'gray' :
-                        tag.dataSource === 'MQTT' ? 'purple' :
-                        tag.dataSource === 'OPC' ? 'orange' : 'blue'
+                        tag.data_source === 'Internal' ? 'gray' :
+                        tag.data_source === 'MQTT' ? 'purple' :
+                        tag.data_source === 'OPC' ? 'orange' : 'blue'
                       }
                       size="sm"
                     >
-                      {tag.dataSource}
+                      {tag.data_source}
                     </Badge>
                   </HStack>
                 ))}
@@ -151,9 +151,9 @@ const TagTree = () => {
         <Box border="1px" borderColor="gray.200" borderRadius="md">
           <Box py={3} px={4}>
             <HStack justify="space-between">
-              <Heading size="sm" color="industrial.800">
+              <Text fontSize="sm" fontWeight="semibold" color="industrial.800">
                 Tag Groups
-              </Heading>
+              </Text>
               <Button
                 size="xs"
                 colorScheme="brand"
