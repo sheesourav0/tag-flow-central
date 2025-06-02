@@ -2,36 +2,15 @@
 import React, { useState } from 'react';
 import {
   Box,
-  HStack,
-  Text,
-  Badge,
-  IconButton,
-  Input,
   Table,
-  Thead,
   Tbody,
-  Tr,
-  Th,
-  Td,
-  Checkbox,
-  Switch,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Select,
 } from '@chakra-ui/react';
-import {
-  EditIcon,
-  SettingsIcon,
-  TriangleUpIcon,
-  TriangleDownIcon,
-  ChevronDownIcon,
-} from '@chakra-ui/icons';
 import { useTagStore } from '../store/tagStore';
 import { useTags } from '../hooks/useTags';
 import { DatabaseTag } from '../services/tagService';
 import TagModal from './TagModal';
+import TableHeader from './tag-table/TableHeader';
+import TableRow from './tag-table/TableRow';
 
 interface TagTableProps {
   onEditTag: (tag: DatabaseTag) => void;
@@ -102,194 +81,41 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Connected': return 'green';
-      case 'Disconnected': return 'gray';
-      case 'Error': return 'red';
-      default: return 'yellow';
-    }
-  };
-
-  const renderCell = (tag: DatabaseTag, column: any) => {
-    const isEditing = editingCell?.tagId === tag.id && editingCell?.field === column.key;
-    const value = tag[column.key as keyof DatabaseTag];
-
-    if (isEditing) {
-      if (column.key === 'data_type') {
-        return (
-          <Select
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={() => handleCellEdit(tag.id, column.key, editValue)}
-            size="sm"
-            autoFocus
-          >
-            <option value="Bool">Bool</option>
-            <option value="Int">Int</option>
-            <option value="Real">Real</option>
-            <option value="String">String</option>
-          </Select>
-        );
-      } else if (['active', 'retain', 'direct_logging', 'alarm_enabled'].includes(column.key)) {
-        return (
-          <Switch
-            isChecked={editValue === 'true'}
-            onChange={(e) => handleCellEdit(tag.id, column.key, e.target.checked)}
-          />
-        );
-      } else {
-        return (
-          <Input
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={() => handleCellEdit(tag.id, column.key, editValue)}
-            onKeyPress={(e) => e.key === 'Enter' && handleCellEdit(tag.id, column.key, editValue)}
-            size="sm"
-            autoFocus
-          />
-        );
-      }
-    }
-
-    switch (column.key) {
-      case 'active':
-      case 'retain':
-      case 'direct_logging':
-      case 'alarm_enabled':
-        return (
-          <Switch
-            isChecked={value as boolean}
-            onChange={(e) => updateTag({ id: tag.id, updates: { [column.key]: e.target.checked } })}
-          />
-        );
-      
-      case 'connection_status':
-        return (
-          <Badge colorScheme={getStatusColor(value as string)} size="sm">
-            {value as string}
-          </Badge>
-        );
-      
-      case 'data_source':
-        return (
-          <HStack spacing={1}>
-            <Badge
-              colorScheme={
-                value === 'Internal' ? 'gray' :
-                value === 'MQTT' ? 'purple' :
-                value === 'OPC' ? 'orange' : 'blue'
-              }
-              size="sm"
-            >
-              {value as string}
-            </Badge>
-            <IconButton
-              aria-label="Configure data source"
-              size="xs"
-              variant="ghost"
-              onClick={() => onEditTag(tag)}
-              icon={<SettingsIcon />}
-            />
-          </HStack>
-        );
-      
-      case 'updated_at':
-        return (
-          <Text fontSize="xs" color="gray.600">
-            {new Date(value as string).toLocaleString()}
-          </Text>
-        );
-      
-      default:
-        return (
-          <Text
-            fontSize="sm"
-            cursor="pointer"
-            onClick={() => {
-              setEditingCell({ tagId: tag.id, field: column.key });
-              setEditValue(value?.toString() || '');
-            }}
-            _hover={{ bg: 'gray.50' }}
-            p={1}
-            borderRadius="sm"
-          >
-            {value?.toString() || ''}
-          </Text>
-        );
-    }
+  const handleToggle = (tagId: string, field: string, value: boolean) => {
+    updateTag({ id: tagId, updates: { [field]: value } });
   };
 
   return (
     <Box h="100%" overflow="auto">
       <Table>
-        <Thead>
-          <Tr>
-            <Th>
-              <Checkbox
-                isChecked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
-                onChange={selectAllTags}
-              />
-            </Th>
-            {visibleColumns.map(column => (
-              <Th
-                key={column.key}
-                cursor="pointer"
-                onClick={() => handleSort(column.key)}
-              >
-                <HStack spacing={1}>
-                  <Text>{column.label}</Text>
-                  {sortConfig.key === column.key && (
-                    sortConfig.direction === 'asc' ? 
-                      <TriangleUpIcon /> : 
-                      <TriangleDownIcon />
-                  )}
-                </HStack>
-              </Th>
-            ))}
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
+        <TableHeader
+          visibleColumns={visibleColumns}
+          selectedTags={selectedTags}
+          sortedTags={sortedTags}
+          sortConfig={sortConfig}
+          onSelectAll={selectAllTags}
+          onSort={handleSort}
+        />
         <Tbody>
           {sortedTags.map((tag, index) => (
-            <Tr
+            <TableRow
               key={tag.id}
-              bg={selectedTags.includes(tag.id) ? 'blue.50' : index % 2 === 0 ? 'white' : 'gray.25'}
-              _hover={{ bg: 'gray.100' }}
-            >
-              <Td>
-                <Checkbox
-                  isChecked={selectedTags.includes(tag.id)}
-                  onChange={() => selectTag(tag.id)}
-                />
-              </Td>
-              {visibleColumns.map(column => (
-                <Td key={column.key}>
-                  {renderCell(tag, column)}
-                </Td>
-              ))}
-              <Td>
-                <Menu>
-                  <MenuButton
-                    as={IconButton}
-                    aria-label="Tag actions"
-                    size="xs"
-                    variant="ghost"
-                    icon={<ChevronDownIcon />}
-                  />
-                  <MenuList>
-                    <MenuItem onClick={() => handleEditTagModal(tag)}>
-                      <EditIcon mr={2} />
-                      Edit Tag
-                    </MenuItem>
-                    <MenuItem>
-                      <SettingsIcon mr={2} />
-                      Configure
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Td>
-            </Tr>
+              tag={tag}
+              index={index}
+              visibleColumns={visibleColumns}
+              isSelected={selectedTags.includes(tag.id)}
+              editingCell={editingCell}
+              editValue={editValue}
+              onSelect={selectTag}
+              onEditStart={(tagId, field, value) => {
+                setEditingCell({ tagId, field });
+                setEditValue(value);
+              }}
+              onEditSave={handleCellEdit}
+              onEditValueChange={setEditValue}
+              onTagEdit={handleEditTagModal}
+              onToggle={handleToggle}
+            />
           ))}
         </Tbody>
       </Table>
