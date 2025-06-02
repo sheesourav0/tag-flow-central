@@ -70,7 +70,7 @@ export const tagService = {
   },
 
   // Create a new tag
-  async createTag(tag: Partial<DatabaseTag>): Promise<DatabaseTag> {
+  async createTag(tag: Omit<DatabaseTag, 'id' | 'created_at' | 'updated_at'>): Promise<DatabaseTag> {
     const { data, error } = await supabase
       .from('tags')
       .insert([tag])
@@ -129,7 +129,7 @@ export const tagService = {
   },
 
   // Create a new group
-  async createGroup(group: Partial<DatabaseGroup>): Promise<DatabaseGroup> {
+  async createGroup(group: Omit<DatabaseGroup, 'id' | 'created_at' | 'updated_at'>): Promise<DatabaseGroup> {
     const { data, error } = await supabase
       .from('groups')
       .insert([group])

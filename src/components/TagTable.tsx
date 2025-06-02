@@ -29,15 +29,17 @@ import {
   ChevronDownIcon,
 } from '@chakra-ui/icons';
 import { useTagStore } from '../store/tagStore';
+import { useTags } from '../hooks/useTags';
+import { DatabaseTag } from '../services/tagService';
 import TagModal from './TagModal';
 
 interface TagTableProps {
-  onEditTag: (tag: any) => void;
+  onEditTag: (tag: DatabaseTag) => void;
 }
 
 const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
+  const { tags, updateTag } = useTags();
   const {
-    tags,
     selectedTags,
     searchTerm,
     filterType,
@@ -46,20 +48,19 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
     sortConfig,
     selectTag,
     selectMultipleTags,
-    updateTag,
     setSortConfig,
   } = useTagStore();
 
   const [editingCell, setEditingCell] = useState<{ tagId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
-  const [selectedTag, setSelectedTag] = useState<any>(null);
+  const [selectedTag, setSelectedTag] = useState<DatabaseTag | null>(null);
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
   const filteredTags = tags.filter(tag => {
     const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tag.comment.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'All' || tag.dataType === filterType;
-    const matchesGroup = filterGroup === 'All' || tag.group === filterGroup;
+                         (tag.comment || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'All' || tag.data_type === filterType;
+    const matchesGroup = filterGroup === 'All' || tag.group_name === filterGroup;
     return matchesSearch && matchesType && matchesGroup;
   });
 
@@ -76,7 +77,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
 
   const visibleColumns = columns.filter(col => col.visible);
 
-  const handleSort = (key: any) => {
+  const handleSort = (key: keyof DatabaseTag) => {
     setSortConfig({
       key,
       direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
@@ -84,11 +85,11 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
   };
 
   const handleCellEdit = (tagId: string, field: string, value: any) => {
-    updateTag(tagId, { [field]: value });
+    updateTag({ id: tagId, updates: { [field]: value } });
     setEditingCell(null);
   };
 
-  const handleEditTagModal = (tag: any) => {
+  const handleEditTagModal = (tag: DatabaseTag) => {
     setSelectedTag(tag);
     setIsTagModalOpen(true);
   };
@@ -110,12 +111,12 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
     }
   };
 
-  const renderCell = (tag: any, column: any) => {
+  const renderCell = (tag: DatabaseTag, column: any) => {
     const isEditing = editingCell?.tagId === tag.id && editingCell?.field === column.key;
-    const value = tag[column.key];
+    const value = tag[column.key as keyof DatabaseTag];
 
     if (isEditing) {
-      if (column.key === 'dataType') {
+      if (column.key === 'data_type') {
         return (
           <Select
             value={editValue}
@@ -130,7 +131,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
             <option value="String">String</option>
           </Select>
         );
-      } else if (['active', 'retain', 'directLogging', 'alarmEnabled'].includes(column.key)) {
+      } else if (['active', 'retain', 'direct_logging', 'alarm_enabled'].includes(column.key)) {
         return (
           <Switch
             isChecked={editValue === 'true'}
@@ -154,23 +155,23 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
     switch (column.key) {
       case 'active':
       case 'retain':
-      case 'directLogging':
-      case 'alarmEnabled':
+      case 'direct_logging':
+      case 'alarm_enabled':
         return (
           <Switch
-            isChecked={value}
-            onChange={(e) => updateTag(tag.id, { [column.key]: e.target.checked })}
+            isChecked={value as boolean}
+            onChange={(e) => updateTag({ id: tag.id, updates: { [column.key]: e.target.checked } })}
           />
         );
       
-      case 'connectionStatus':
+      case 'connection_status':
         return (
-          <Badge colorScheme={getStatusColor(value)} size="sm">
-            {value}
+          <Badge colorScheme={getStatusColor(value as string)} size="sm">
+            {value as string}
           </Badge>
         );
       
-      case 'dataSource':
+      case 'data_source':
         return (
           <HStack spacing={1}>
             <Badge
@@ -181,7 +182,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
               }
               size="sm"
             >
-              {value}
+              {value as string}
             </Badge>
             <IconButton
               aria-label="Configure data source"
@@ -193,10 +194,10 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
           </HStack>
         );
       
-      case 'lastUpdate':
+      case 'updated_at':
         return (
           <Text fontSize="xs" color="gray.600">
-            {new Date(value).toLocaleString()}
+            {new Date(value as string).toLocaleString()}
           </Text>
         );
       

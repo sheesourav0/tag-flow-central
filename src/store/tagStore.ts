@@ -2,16 +2,17 @@
 import { create } from 'zustand';
 import { DatabaseTag, DatabaseGroup } from '../services/tagService';
 
+// Use DatabaseTag directly instead of creating a separate Tag interface
 export interface Tag extends DatabaseTag {
-  lastUpdate: string;
+  // No additional properties needed
 }
 
 export interface Group extends DatabaseGroup {
-  parent?: string;
+  // No additional properties needed
 }
 
 export interface Column {
-  key: keyof Tag;
+  key: keyof DatabaseTag;
   label: string;
   visible: boolean;
   width: number;
@@ -24,7 +25,7 @@ interface TagStore {
   filterType: string;
   filterGroup: string;
   columns: Column[];
-  sortConfig: { key: keyof Tag | null; direction: 'asc' | 'desc' };
+  sortConfig: { key: keyof DatabaseTag | null; direction: 'asc' | 'desc' };
   
   // Actions
   selectTag: (id: string) => void;
@@ -33,9 +34,9 @@ interface TagStore {
   setSearchTerm: (term: string) => void;
   setFilterType: (type: string) => void;
   setFilterGroup: (group: string) => void;
-  setSortConfig: (config: { key: keyof Tag | null; direction: 'asc' | 'desc' }) => void;
-  toggleColumn: (key: keyof Tag) => void;
-  exportTags: (tags: Tag[]) => void;
+  setSortConfig: (config: { key: keyof DatabaseTag | null; direction: 'asc' | 'desc' }) => void;
+  toggleColumn: (key: keyof DatabaseTag) => void;
+  exportTags: (tags: DatabaseTag[]) => void;
   importTags: (file: File) => void;
 }
 
@@ -108,7 +109,6 @@ export const useTagStore = create<TagStore>((set, get) => ({
   },
 
   importTags: (file) => {
-    // This would need to be implemented with the backend service
     console.log('Import functionality needs backend implementation', file);
   },
 }));

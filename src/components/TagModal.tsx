@@ -29,109 +29,112 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
 } from '@chakra-ui/react';
-import { useTagStore, Tag } from '../store/tagStore';
+import { DatabaseTag } from '../services/tagService';
+import { useTags } from '../hooks/useTags';
+import { useGroups } from '../hooks/useGroups';
 
 interface TagModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tag?: Tag;
+  tag?: DatabaseTag | null;
 }
 
 const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
-  const { addTag, updateTag, groups } = useTagStore();
+  const { createTag, updateTag } = useTags();
+  const { groups } = useGroups();
   
   const [formData, setFormData] = useState({
     name: '',
-    dataType: 'Bool' as Tag['dataType'],
+    data_type: 'Bool' as string,
     address: '',
     value: '',
     comment: '',
-    group: '',
+    group_name: '',
     active: true,
     retain: false,
-    dataSource: 'Internal' as Tag['dataSource'],
-    mqttPath: '',
-    opcNodeId: '',
-    modbusRegister: 0,
-    updateInterval: '1s',
+    data_source: 'Internal' as string,
+    mqtt_path: '',
+    opc_node_id: '',
+    modbus_register: 0,
+    update_interval: '1s',
     multiplier: 1,
-    deviceId: '',
-    directLogging: false,
-    logDuration: '24h',
-    alarmEnabled: false,
-    alarmHighLimit: 100,
-    alarmLowLimit: 0,
+    device_id: '',
+    direct_logging: false,
+    log_duration: '24h',
+    alarm_enabled: false,
+    alarm_high_limit: 100,
+    alarm_low_limit: 0,
   });
 
   useEffect(() => {
     if (tag) {
       setFormData({
         name: tag.name,
-        dataType: tag.dataType,
+        data_type: tag.data_type,
         address: tag.address,
-        value: tag.value,
-        comment: tag.comment,
-        group: tag.group,
-        active: tag.active,
-        retain: tag.retain,
-        dataSource: tag.dataSource,
-        mqttPath: tag.mqttPath || '',
-        opcNodeId: tag.opcNodeId || '',
-        modbusRegister: tag.modbusRegister || 0,
-        updateInterval: tag.updateInterval,
-        multiplier: tag.multiplier,
-        deviceId: tag.deviceId,
-        directLogging: tag.directLogging,
-        logDuration: tag.logDuration,
-        alarmEnabled: tag.alarmEnabled,
-        alarmHighLimit: tag.alarmHighLimit || 100,
-        alarmLowLimit: tag.alarmLowLimit || 0,
+        value: tag.value || '',
+        comment: tag.comment || '',
+        group_name: tag.group_name,
+        active: tag.active || true,
+        retain: tag.retain || false,
+        data_source: tag.data_source,
+        mqtt_path: tag.mqtt_path || '',
+        opc_node_id: tag.opc_node_id || '',
+        modbus_register: tag.modbus_register || 0,
+        update_interval: tag.update_interval || '1s',
+        multiplier: tag.multiplier || 1,
+        device_id: tag.device_id || '',
+        direct_logging: tag.direct_logging || false,
+        log_duration: tag.log_duration || '24h',
+        alarm_enabled: tag.alarm_enabled || false,
+        alarm_high_limit: tag.alarm_high_limit || 100,
+        alarm_low_limit: tag.alarm_low_limit || 0,
       });
     } else {
       setFormData({
         name: '',
-        dataType: 'Bool',
+        data_type: 'Bool',
         address: '',
         value: '',
         comment: '',
-        group: groups[0]?.name || '',
+        group_name: groups[0]?.name || '',
         active: true,
         retain: false,
-        dataSource: 'Internal',
-        mqttPath: '',
-        opcNodeId: '',
-        modbusRegister: 0,
-        updateInterval: '1s',
+        data_source: 'Internal',
+        mqtt_path: '',
+        opc_node_id: '',
+        modbus_register: 0,
+        update_interval: '1s',
         multiplier: 1,
-        deviceId: '',
-        directLogging: false,
-        logDuration: '24h',
-        alarmEnabled: false,
-        alarmHighLimit: 100,
-        alarmLowLimit: 0,
+        device_id: '',
+        direct_logging: false,
+        log_duration: '24h',
+        alarm_enabled: false,
+        alarm_high_limit: 100,
+        alarm_low_limit: 0,
       });
     }
   }, [tag, isOpen, groups]);
 
   const handleSave = () => {
     if (tag) {
-      updateTag(tag.id, formData);
+      updateTag({ id: tag.id, updates: formData });
     } else {
-      addTag(formData);
+      createTag(formData);
     }
     onClose();
   };
 
   const renderDataSourceFields = () => {
-    switch (formData.dataSource) {
+    switch (formData.data_source) {
       case 'MQTT':
         return (
           <VStack align="stretch" spacing={4}>
             <Box>
               <Text fontSize="sm" fontWeight="medium" mb={1}>MQTT Topic Path</Text>
               <Input
-                value={formData.mqttPath}
-                onChange={(e) => setFormData(prev => ({ ...prev, mqttPath: e.target.value }))}
+                value={formData.mqtt_path}
+                onChange={(e) => setFormData(prev => ({ ...prev, mqtt_path: e.target.value }))}
                 placeholder="sensors/motor1/speed"
                 size="sm"
               />
@@ -178,8 +181,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             <Box>
               <Text fontSize="sm" fontWeight="medium" mb={1}>OPC Node ID</Text>
               <Input
-                value={formData.opcNodeId}
-                onChange={(e) => setFormData(prev => ({ ...prev, opcNodeId: e.target.value }))}
+                value={formData.opc_node_id}
+                onChange={(e) => setFormData(prev => ({ ...prev, opc_node_id: e.target.value }))}
                 placeholder="ns=2;s=Temperature.Tank1"
                 size="sm"
               />
@@ -226,9 +229,9 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
             <Box>
               <Text fontSize="sm" fontWeight="medium" mb={1}>Modbus Register</Text>
               <NumberInput
-                value={formData.modbusRegister}
+                value={formData.modbus_register}
                 onChange={(valueString, valueNumber) => 
-                  setFormData(prev => ({ ...prev, modbusRegister: valueNumber || 0 }))
+                  setFormData(prev => ({ ...prev, modbus_register: valueNumber || 0 }))
                 }
                 size="sm"
                 min={0}
@@ -327,7 +330,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
           {tag ? 'Edit Tag' : 'Add New Tag'}
           {tag && (
             <Badge ml={2} colorScheme="blue">
-              {tag.connectionStatus}
+              {tag.connection_status}
             </Badge>
           )}
         </ModalHeader>
@@ -357,8 +360,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={1}>Data Type</Text>
                       <Select
-                        value={formData.dataType}
-                        onChange={(e) => setFormData(prev => ({ ...prev, dataType: e.target.value as Tag['dataType'] }))}
+                        value={formData.data_type}
+                        onChange={(e) => setFormData(prev => ({ ...prev, data_type: e.target.value }))}
                         size="sm"
                       >
                         <option value="Bool">Bool</option>
@@ -397,8 +400,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Group</Text>
                     <Select
-                      value={formData.group}
-                      onChange={(e) => setFormData(prev => ({ ...prev, group: e.target.value }))}
+                      value={formData.group_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, group_name: e.target.value }))}
                       size="sm"
                     >
                       {groups.map(group => (
@@ -443,8 +446,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
                     <Select
-                      value={formData.dataSource}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dataSource: e.target.value as Tag['dataSource'] }))}
+                      value={formData.data_source}
+                      onChange={(e) => setFormData(prev => ({ ...prev, data_source: e.target.value }))}
                       size="sm"
                     >
                       <option value="Internal">Internal</option>
