@@ -104,6 +104,7 @@
   /* Chakra UI Modal z-index fixes */
   .chakra-modal__overlay {
     z-index: 1400 !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
   }
   
   .chakra-modal__content-container {
@@ -112,6 +113,24 @@
 
   .chakra-modal__content {
     z-index: 1450 !important;
+    background-color: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Chakra UI Menu and Popover z-index */
+  .chakra-menu__menu-list {
+    z-index: 1300 !important;
+    background-color: white !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .chakra-popover__content {
+    z-index: 1300 !important;
+    background-color: white !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
   }
 
   /* Radix UI components z-index */
@@ -127,5 +146,15 @@
   /* Fix for any overlay issues */
   [data-state="open"] {
     z-index: 1500 !important;
+  }
+
+  /* Ensure dropdowns have proper background and z-index */
+  [role="menu"],
+  [role="listbox"] {
+    background-color: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+    z-index: 1300 !important;
   }
 }

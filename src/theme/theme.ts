@@ -1,8 +1,7 @@
 
-import { createSystem, defaultConfig } from '@chakra-ui/react';
+import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
-const customConfig = {
-  ...defaultConfig,
+const config = defineConfig({
   theme: {
     tokens: {
       colors: {
@@ -19,6 +18,6 @@ const customConfig = {
       },
     },
   },
-};
+});
 
-export const system = createSystem(customConfig);
+export const system = createSystem(defaultConfig, config);
