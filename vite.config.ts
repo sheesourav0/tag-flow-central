@@ -23,6 +23,22 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ["@emotion/react", "@emotion/styled", "@chakra-ui/react"],
+    include: [
+      "@emotion/react", 
+      "@emotion/styled", 
+      "@chakra-ui/react",
+      "@chakra-ui/styled-system",
+      "framer-motion"
+    ],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          chakra: ["@chakra-ui/react"],
+          emotion: ["@emotion/react", "@emotion/styled"],
+        },
+      },
+    },
   },
 }));
