@@ -11,9 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react({
-      jsxImportSource: "@emotion/react",
-    }),
+    react(),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
@@ -27,7 +25,6 @@ export default defineConfig(({ mode }) => ({
       "@emotion/react", 
       "@emotion/styled", 
       "@chakra-ui/react",
-      "@chakra-ui/styled-system",
       "framer-motion"
     ],
   },

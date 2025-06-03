@@ -12,8 +12,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ChakraProvider value={system}>
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
+    <ChakraProvider value={system}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -25,8 +25,8 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
-  </ChakraProvider>
+    </ChakraProvider>
+  </QueryClientProvider>
 );
 
 export default App;

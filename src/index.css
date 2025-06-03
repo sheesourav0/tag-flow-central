@@ -93,23 +93,39 @@
     @apply bg-background text-foreground;
     margin: 0;
     padding: 0;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 
-  /* Ensure proper z-index for modals and dialogs */
-  [data-radix-popper-content-wrapper] {
-    z-index: 50 !important;
-  }
-  
+  /* Chakra UI Portal z-index fixes */
   .chakra-portal {
-    z-index: 50 !important;
+    z-index: 1500 !important;
   }
 
-  /* Fix for Chakra UI dialogs */
+  /* Chakra UI Modal z-index fixes */
   .chakra-modal__overlay {
     z-index: 1400 !important;
   }
   
   .chakra-modal__content-container {
     z-index: 1400 !important;
+  }
+
+  .chakra-modal__content {
+    z-index: 1450 !important;
+  }
+
+  /* Radix UI components z-index */
+  [data-radix-popper-content-wrapper] {
+    z-index: 50 !important;
+  }
+
+  /* Ensure dialogs render above other content */
+  [role="dialog"] {
+    z-index: 1500 !important;
+  }
+
+  /* Fix for any overlay issues */
+  [data-state="open"] {
+    z-index: 1500 !important;
   }
 }
