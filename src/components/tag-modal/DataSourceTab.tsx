@@ -7,8 +7,7 @@ import {
   Input,
   NativeSelectRoot,
   NativeSelectField,
-  NumberInputRoot,
-  NumberInputField,
+  NumberInput,
   Text,
 } from '@chakra-ui/react';
 
@@ -85,14 +84,14 @@ const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) 
         <HStack gap={4}>
           <Field.Root>
             <Field.Label fontSize="sm">Modbus Register</Field.Label>
-            <NumberInputRoot
+            <NumberInput.Root
               value={formData.modbus_register.toString()}
               onValueChange={(e) => handleChange('modbus_register', parseInt(e.value) || 0)}
               size="sm"
               min={0}
             >
-              <NumberInputField />
-            </NumberInputRoot>
+              <NumberInput.Input />
+            </NumberInput.Root>
           </Field.Root>
         </HStack>
       )}
@@ -110,14 +109,14 @@ const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) 
         
         <Field.Root>
           <Field.Label fontSize="sm">Multiplier</Field.Label>
-          <NumberInputRoot
+          <NumberInput.Root
             value={formData.multiplier.toString()}
             onValueChange={(e) => handleChange('multiplier', parseFloat(e.value) || 1)}
             size="sm"
             step={0.1}
           >
-            <NumberInputField />
-          </NumberInputRoot>
+            <NumberInput.Input />
+          </NumberInput.Root>
         </Field.Root>
       </HStack>
     </Stack>

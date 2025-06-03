@@ -6,8 +6,7 @@ import {
   Field,
   NativeSelectRoot,
   NativeSelectField,
-  NumberInputRoot,
-  NumberInputField,
+  NumberInput,
   Text,
   Separator,
 } from '@chakra-ui/react';
@@ -82,24 +81,24 @@ const LoggingAlarmsTab: React.FC<LoggingAlarmsTabProps> = ({ formData, setFormDa
         <HStack gap={4}>
           <Field.Root>
             <Field.Label fontSize="sm">High Limit</Field.Label>
-            <NumberInputRoot
+            <NumberInput.Root
               value={formData.alarm_high_limit.toString()}
               onValueChange={(e) => handleChange('alarm_high_limit', parseInt(e.value) || 100)}
               size="sm"
             >
-              <NumberInputField />
-            </NumberInputRoot>
+              <NumberInput.Input />
+            </NumberInput.Root>
           </Field.Root>
           
           <Field.Root>
             <Field.Label fontSize="sm">Low Limit</Field.Label>
-            <NumberInputRoot
+            <NumberInput.Root
               value={formData.alarm_low_limit.toString()}
               onValueChange={(e) => handleChange('alarm_low_limit', parseInt(e.value) || 0)}
               size="sm"
             >
-              <NumberInputField />
-            </NumberInputRoot>
+              <NumberInput.Input />
+            </NumberInput.Root>
           </Field.Root>
         </HStack>
       )}
