@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Stack,
@@ -8,7 +7,7 @@ import {
   NativeSelectRoot,
   NativeSelectField,
   NumberInputRoot,
-  NumberInputField,
+  NumberInput,
   Text,
 } from '@chakra-ui/react';
 
@@ -91,7 +90,7 @@ const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) 
               size="sm"
               min={0}
             >
-              <NumberInputField />
+              <NumberInput />
             </NumberInputRoot>
           </Field.Root>
         </HStack>
@@ -116,7 +115,7 @@ const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) 
             size="sm"
             step={0.1}
           >
-            <NumberInputField />
+            <NumberInput />
           </NumberInputRoot>
         </Field.Root>
       </HStack>
