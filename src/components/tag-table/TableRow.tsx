@@ -81,11 +81,11 @@ const TableRow: React.FC<TableRowProps> = ({
             </IconButton>
           </MenuTrigger>
           <MenuContent>
-            <MenuItem onClick={() => onTagEdit(tag)}>
+            <MenuItem value="edit" onClick={() => onTagEdit(tag)}>
               <Edit size={16} style={{ marginRight: '8px' }} />
               Edit Tag
             </MenuItem>
-            <MenuItem>
+            <MenuItem value="configure">
               <Settings size={16} style={{ marginRight: '8px' }} />
               Configure
             </MenuItem>
