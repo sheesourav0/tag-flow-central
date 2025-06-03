@@ -21,7 +21,7 @@ import {
   SearchIcon, 
   SettingsIcon, 
   DownloadIcon,
-  UploadIcon,
+  ArrowUpIcon,
   RepeatIcon
 } from '@chakra-ui/icons';
 import { DatabaseGroup } from '../../services/tagService';
@@ -102,7 +102,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <Tooltip label="Import Tags">
               <IconButton
                 aria-label="Import"
-                icon={<UploadIcon />}
+                icon={<ArrowUpIcon />}
                 size="sm"
                 variant="outline"
               />
