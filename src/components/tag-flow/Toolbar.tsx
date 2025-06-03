@@ -8,22 +8,20 @@ import {
   Button,
   Input,
   Select,
-  InputGroup,
-  InputLeftElement,
   Badge,
-  IconButton,
-  Tooltip,
-  Divider,
+  Separator,
+  Portal,
+  createListCollection,
 } from '@chakra-ui/react';
 import { 
-  AddIcon, 
-  DeleteIcon, 
-  SearchIcon, 
-  SettingsIcon, 
-  DownloadIcon,
-  ArrowUpIcon,
-  RepeatIcon
-} from '@chakra-ui/icons';
+  Plus,
+  Trash2,
+  Search,
+  Settings,
+  Download,
+  ArrowUp,
+  RotateCcw
+} from 'lucide-react';
 import { DatabaseGroup } from '../../services/tagService';
 
 interface ToolbarProps {
@@ -59,77 +57,68 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onFilterTypeChange,
   onFilterGroupChange,
 }) => {
-  const dataTypes = ['All', 'Bool', 'Int16', 'Int32', 'Real', 'String', 'DateTime'];
+  const dataTypes = createListCollection({
+    items: [
+      { label: 'All', value: 'All' },
+      { label: 'Bool', value: 'Bool' },
+      { label: 'Int16', value: 'Int16' },
+      { label: 'Int32', value: 'Int32' },
+      { label: 'Real', value: 'Real' },
+      { label: 'String', value: 'String' },
+      { label: 'DateTime', value: 'DateTime' },
+    ],
+  });
+
+  const groupOptions = createListCollection({
+    items: [
+      { label: 'All Groups', value: 'All' },
+      ...groups.map(group => ({ label: group.name, value: group.name })),
+    ],
+  });
 
   return (
     <Box bg="white" borderBottom="1px" borderColor="gray.200" p={4}>
-      <VStack spacing={4} align="stretch">
+      <VStack gap={4} align="stretch">
         {/* Top Row - Actions and Stats */}
         <HStack justify="space-between">
-          <HStack spacing={3}>
-            <Button
-              leftIcon={<AddIcon />}
-              colorScheme="blue"
-              size="sm"
-              onClick={onAddTag}
-            >
+          <HStack gap={3}>
+            <Button size="sm" colorPalette="blue" onClick={onAddTag}>
+              <Plus size={16} />
               Add Tag
             </Button>
             
             <Button
-              leftIcon={<DeleteIcon />}
-              colorScheme="red"
-              variant="outline"
               size="sm"
-              isDisabled={selectedCount === 0}
+              variant="outline"
+              colorPalette="red"
+              disabled={selectedCount === 0}
               onClick={onDeleteSelected}
             >
+              <Trash2 size={16} />
               Delete ({selectedCount})
             </Button>
             
-            <Divider orientation="vertical" h="24px" />
+            <Separator orientation="vertical" height="24px" />
             
-            <Tooltip label="Data Sources">
-              <IconButton
-                aria-label="Data sources"
-                icon={<RepeatIcon />}
-                size="sm"
-                variant="outline"
-                onClick={onDataSources}
-              />
-            </Tooltip>
+            <Button size="sm" variant="outline" onClick={onDataSources}>
+              <RotateCcw size={16} />
+            </Button>
             
-            <Tooltip label="Import Tags">
-              <IconButton
-                aria-label="Import"
-                icon={<ArrowUpIcon />}
-                size="sm"
-                variant="outline"
-              />
-            </Tooltip>
+            <Button size="sm" variant="outline">
+              <ArrowUp size={16} />
+            </Button>
             
-            <Tooltip label="Export Tags">
-              <IconButton
-                aria-label="Export"
-                icon={<DownloadIcon />}
-                size="sm"
-                variant="outline"
-              />
-            </Tooltip>
+            <Button size="sm" variant="outline">
+              <Download size={16} />
+            </Button>
             
-            <Tooltip label="Settings">
-              <IconButton
-                aria-label="Settings"
-                icon={<SettingsIcon />}
-                size="sm"
-                variant="outline"
-                onClick={onSettings}
-              />
-            </Tooltip>
+            <Button size="sm" variant="outline" onClick={onSettings}>
+              <Settings size={16} />
+            </Button>
           </HStack>
 
-          <HStack spacing={4}>
-            <VStack spacing={0} align="end">
+          <HStack gap={4}>
+            <VStack gap={0} align="end">
               <Text fontSize="sm" fontWeight="semibold">
                 {totalTags} Total Tags
               </Text>
@@ -139,7 +128,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </VStack>
             
             {selectedCount > 0 && (
-              <Badge colorScheme="blue" fontSize="sm" p={2}>
+              <Badge colorPalette="blue" size="sm">
                 {selectedCount} Selected
               </Badge>
             )}
@@ -147,40 +136,63 @@ const Toolbar: React.FC<ToolbarProps> = ({
         </HStack>
 
         {/* Bottom Row - Search and Filters */}
-        <HStack spacing={4}>
-          <InputGroup size="sm" maxW="300px">
-            <InputLeftElement>
-              <SearchIcon color="gray.400" />
-            </InputLeftElement>
+        <HStack gap={4}>
+          <Box position="relative" maxW="300px">
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
             <Input
+              pl="40px"
+              size="sm"
               placeholder="Search tags..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
             />
-          </InputGroup>
+          </Box>
           
-          <Select
+          <Select.Root
+            collection={dataTypes}
             size="sm"
-            maxW="150px"
-            value={filterType}
-            onChange={(e) => onFilterTypeChange(e.target.value)}
+            width="150px"
+            value={[filterType]}
+            onValueChange={(e) => onFilterTypeChange(e.value[0])}
           >
-            {dataTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </Select>
+            <Select.Trigger>
+              <Select.ValueText />
+            </Select.Trigger>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  {dataTypes.items.map((type) => (
+                    <Select.Item item={type} key={type.value}>
+                      {type.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
           
-          <Select
+          <Select.Root
+            collection={groupOptions}
             size="sm"
-            maxW="150px"
-            value={filterGroup}
-            onChange={(e) => onFilterGroupChange(e.target.value)}
+            width="150px"
+            value={[filterGroup]}
+            onValueChange={(e) => onFilterGroupChange(e.value[0])}
           >
-            <option value="All">All Groups</option>
-            {groups.map(group => (
-              <option key={group.id} value={group.name}>{group.name}</option>
-            ))}
-          </Select>
+            <Select.Trigger>
+              <Select.ValueText />
+            </Select.Trigger>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  {groupOptions.items.map((group) => (
+                    <Select.Item item={group} key={group.value}>
+                      {group.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
         </HStack>
       </VStack>
     </Box>
