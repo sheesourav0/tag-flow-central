@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Table,
-  Tbody,
 } from '@chakra-ui/react';
 import { useTagStore } from '../store/tagStore';
 import { useTags } from '../hooks/useTags';
@@ -87,7 +85,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
 
   return (
     <Box h="100%" overflow="auto">
-      <Table>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <TableHeader
           visibleColumns={visibleColumns}
           selectedTags={selectedTags}
@@ -96,7 +94,7 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
           onSelectAll={selectAllTags}
           onSort={handleSort}
         />
-        <Tbody>
+        <tbody>
           {sortedTags.map((tag, index) => (
             <TableRow
               key={tag.id}
@@ -117,8 +115,8 @@ const TagTable: React.FC<TagTableProps> = ({ onEditTag }) => {
               onToggle={handleToggle}
             />
           ))}
-        </Tbody>
-      </Table>
+        </tbody>
+      </table>
 
       {selectedTag && (
         <TagModal

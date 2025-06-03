@@ -1,14 +1,10 @@
 
 import React from 'react';
 import {
-  Thead,
-  Tr,
-  Th,
-  Checkbox,
   HStack,
   Text,
 } from '@chakra-ui/react';
-import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { DatabaseTag } from '../../services/tagService';
 
 interface TableHeaderProps {
@@ -29,33 +25,34 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   onSort,
 }) => {
   return (
-    <Thead>
-      <Tr>
-        <Th>
-          <Checkbox
-            isChecked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
+    <thead>
+      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+        <th style={{ padding: '12px', textAlign: 'left' }}>
+          <input
+            type="checkbox"
+            checked={selectedTags.length === sortedTags.length && sortedTags.length > 0}
             onChange={onSelectAll}
           />
-        </Th>
+        </th>
         {visibleColumns.map(column => (
-          <Th
+          <th
             key={column.key}
-            cursor="pointer"
+            style={{ padding: '12px', textAlign: 'left', cursor: 'pointer' }}
             onClick={() => onSort(column.key)}
           >
-            <HStack spacing={1}>
-              <Text>{column.label}</Text>
+            <HStack gap={1}>
+              <Text fontWeight="medium">{column.label}</Text>
               {sortConfig.key === column.key && (
                 sortConfig.direction === 'asc' ? 
-                  <TriangleUpIcon /> : 
-                  <TriangleDownIcon />
+                  <ChevronUp size={16} /> : 
+                  <ChevronDown size={16} />
               )}
             </HStack>
-          </Th>
+          </th>
         ))}
-        <Th>Actions</Th>
-      </Tr>
-    </Thead>
+        <th style={{ padding: '12px', textAlign: 'left' }}>Actions</th>
+      </tr>
+    </thead>
   );
 };
 

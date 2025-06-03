@@ -3,12 +3,11 @@ import React from 'react';
 import {
   Text,
   Input,
-  Switch,
   Badge,
   IconButton,
   HStack,
 } from '@chakra-ui/react';
-import { EditIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import { Edit, Check, X } from 'lucide-react';
 import { DatabaseTag } from '../../services/tagService';
 
 interface TableCellProps {
@@ -47,7 +46,7 @@ const TableCell: React.FC<TableCellProps> = ({
 
   if (isEditing && column.key !== 'active' && column.key !== 'retain') {
     return (
-      <HStack spacing={1}>
+      <HStack gap={1}>
         <Input
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
@@ -57,15 +56,17 @@ const TableCell: React.FC<TableCellProps> = ({
         <IconButton
           aria-label="Save"
           size="xs"
-          icon={<CheckIcon />}
           onClick={() => onEditSave(editValue)}
-        />
+        >
+          <Check size={12} />
+        </IconButton>
         <IconButton
           aria-label="Cancel"
           size="xs"
-          icon={<CloseIcon />}
           onClick={() => onEditStart('')}
-        />
+        >
+          <X size={12} />
+        </IconButton>
       </HStack>
     );
   }
@@ -76,23 +77,23 @@ const TableCell: React.FC<TableCellProps> = ({
     case 'direct_logging':
     case 'alarm_enabled':
       return (
-        <Switch
-          isChecked={Boolean(value)}
+        <input
+          type="checkbox"
+          checked={Boolean(value)}
           onChange={(e) => onToggle(column.key, e.target.checked)}
-          size="sm"
         />
       );
 
     case 'connection_status':
       return (
-        <Badge colorScheme={getStatusColor(String(value))}>
+        <Badge colorPalette={getStatusColor(String(value))}>
           {String(value)}
         </Badge>
       );
 
     case 'name':
       return (
-        <HStack spacing={2}>
+        <HStack gap={2}>
           <Text
             fontSize="sm"
             cursor="pointer"
@@ -105,9 +106,10 @@ const TableCell: React.FC<TableCellProps> = ({
             aria-label="Edit tag"
             size="xs"
             variant="ghost"
-            icon={<EditIcon />}
             onClick={() => onTagEdit(tag)}
-          />
+          >
+            <Edit size={12} />
+          </IconButton>
         </HStack>
       );
 

@@ -1,14 +1,13 @@
 
 import React from 'react';
 import {
-  VStack,
+  Stack,
   HStack,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
-  Select,
+  NativeSelectRoot,
+  NativeSelectField,
   Textarea,
-  Switch,
   Text,
 } from '@chakra-ui/react';
 import { useGroups } from '../../hooks/useGroups';
@@ -28,69 +27,71 @@ const BasicTab: React.FC<BasicTabProps> = ({ formData, setFormData }) => {
   };
 
   return (
-    <VStack spacing={4} align="stretch">
-      <HStack spacing={4}>
-        <FormControl isRequired>
-          <FormLabel fontSize="sm">Tag Name</FormLabel>
+    <Stack gap={4}>
+      <HStack gap={4}>
+        <Field.Root required>
+          <Field.Label fontSize="sm">Tag Name</Field.Label>
           <Input
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Enter tag name"
             size="sm"
           />
-        </FormControl>
+        </Field.Root>
         
-        <FormControl isRequired>
-          <FormLabel fontSize="sm">Data Type</FormLabel>
-          <Select
-            value={formData.data_type}
-            onChange={(e) => handleChange('data_type', e.target.value)}
-            size="sm"
-          >
-            {dataTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </Select>
-        </FormControl>
+        <Field.Root required>
+          <Field.Label fontSize="sm">Data Type</Field.Label>
+          <NativeSelectRoot size="sm">
+            <NativeSelectField
+              value={formData.data_type}
+              onChange={(e) => handleChange('data_type', e.target.value)}
+            >
+              {dataTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </NativeSelectField>
+          </NativeSelectRoot>
+        </Field.Root>
       </HStack>
 
-      <HStack spacing={4}>
-        <FormControl isRequired>
-          <FormLabel fontSize="sm">Address</FormLabel>
+      <HStack gap={4}>
+        <Field.Root required>
+          <Field.Label fontSize="sm">Address</Field.Label>
           <Input
             value={formData.address}
             onChange={(e) => handleChange('address', e.target.value)}
             placeholder="Tag address"
             size="sm"
           />
-        </FormControl>
+        </Field.Root>
         
-        <FormControl>
-          <FormLabel fontSize="sm">Initial Value</FormLabel>
+        <Field.Root>
+          <Field.Label fontSize="sm">Initial Value</Field.Label>
           <Input
             value={formData.value}
             onChange={(e) => handleChange('value', e.target.value)}
             placeholder="Initial value"
             size="sm"
           />
-        </FormControl>
+        </Field.Root>
       </HStack>
 
-      <FormControl>
-        <FormLabel fontSize="sm">Group</FormLabel>
-        <Select
-          value={formData.group_name}
-          onChange={(e) => handleChange('group_name', e.target.value)}
-          size="sm"
-        >
-          {groups.map(group => (
-            <option key={group.id} value={group.name}>{group.name}</option>
-          ))}
-        </Select>
-      </FormControl>
+      <Field.Root>
+        <Field.Label fontSize="sm">Group</Field.Label>
+        <NativeSelectRoot size="sm">
+          <NativeSelectField
+            value={formData.group_name}
+            onChange={(e) => handleChange('group_name', e.target.value)}
+          >
+            {groups.map(group => (
+              <option key={group.id} value={group.name}>{group.name}</option>
+            ))}
+          </NativeSelectField>
+        </NativeSelectRoot>
+      </Field.Root>
 
-      <FormControl>
-        <FormLabel fontSize="sm">Comment</FormLabel>
+      <Field.Root>
+        <Field.Label fontSize="sm">Comment</Field.Label>
         <Textarea
           value={formData.comment}
           onChange={(e) => handleChange('comment', e.target.value)}
@@ -98,28 +99,32 @@ const BasicTab: React.FC<BasicTabProps> = ({ formData, setFormData }) => {
           size="sm"
           rows={3}
         />
-      </FormControl>
+      </Field.Root>
 
-      <HStack spacing={6}>
-        <FormControl display="flex" alignItems="center">
-          <FormLabel fontSize="sm" mb="0">Active</FormLabel>
-          <Switch
-            isChecked={formData.active}
-            onChange={(e) => handleChange('active', e.target.checked)}
-            size="sm"
-          />
-        </FormControl>
+      <HStack gap={6}>
+        <Field.Root>
+          <HStack>
+            <input
+              type="checkbox"
+              checked={formData.active}
+              onChange={(e) => handleChange('active', e.target.checked)}
+            />
+            <Text fontSize="sm">Active</Text>
+          </HStack>
+        </Field.Root>
         
-        <FormControl display="flex" alignItems="center">
-          <FormLabel fontSize="sm" mb="0">Retain Value</FormLabel>
-          <Switch
-            isChecked={formData.retain}
-            onChange={(e) => handleChange('retain', e.target.checked)}
-            size="sm"
-          />
-        </FormControl>
+        <Field.Root>
+          <HStack>
+            <input
+              type="checkbox"
+              checked={formData.retain}
+              onChange={(e) => handleChange('retain', e.target.checked)}
+            />
+            <Text fontSize="sm">Retain Value</Text>
+          </HStack>
+        </Field.Root>
       </HStack>
-    </VStack>
+    </Stack>
   );
 };
 

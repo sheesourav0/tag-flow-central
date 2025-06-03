@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import {
   Button,
   HStack,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle,
+  DialogCloseTrigger,
+  CloseButton,
 } from '@chakra-ui/react';
 import ConnectionList from './data-source/ConnectionList';
 import NewConnectionForm from './data-source/NewConnectionForm';
@@ -54,13 +55,16 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Data Source Connections</ModalHeader>
-        <ModalCloseButton />
+    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="4xl">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Data Source Connections</DialogTitle>
+          <DialogCloseTrigger asChild>
+            <CloseButton />
+          </DialogCloseTrigger>
+        </DialogHeader>
         
-        <ModalBody>
+        <DialogBody>
           {/* Tab Navigation */}
           <HStack mb={4} borderBottom="1px" borderColor="gray.200">
             <Button
@@ -88,15 +92,15 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
           )}
           
           {activeTab === 'new' && <NewConnectionForm />}
-        </ModalBody>
+        </DialogBody>
 
-        <ModalFooter>
-          <Button colorScheme="blue" onClick={onClose} size="sm">
+        <DialogFooter>
+          <Button colorPalette="blue" onClick={onClose} size="sm">
             Close
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 };
 
