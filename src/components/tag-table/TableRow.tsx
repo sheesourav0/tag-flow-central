@@ -1,13 +1,16 @@
 
 import React from 'react';
 import {
-  MenuRoot,
-  MenuTrigger,
-  MenuContent,
-  MenuItem,
+  Tr,
+  Td,
+  Checkbox,
   IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
-import { Edit, Settings, ChevronDown } from 'lucide-react';
+import { EditIcon, SettingsIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { DatabaseTag } from '../../services/tagService';
 import TableCell from './TableCell';
 
@@ -41,21 +44,18 @@ const TableRow: React.FC<TableRowProps> = ({
   onToggle,
 }) => {
   return (
-    <tr
-      style={{
-        backgroundColor: isSelected ? '#dbeafe' : index % 2 === 0 ? 'white' : '#f9fafb',
-        borderBottom: '1px solid #e5e7eb'
-      }}
+    <Tr
+      bg={isSelected ? 'blue.50' : index % 2 === 0 ? 'white' : 'gray.25'}
+      _hover={{ bg: 'gray.100' }}
     >
-      <td style={{ padding: '12px' }}>
-        <input
-          type="checkbox"
-          checked={isSelected}
+      <Td>
+        <Checkbox
+          isChecked={isSelected}
           onChange={() => onSelect(tag.id)}
         />
-      </td>
+      </Td>
       {visibleColumns.map(column => (
-        <td key={column.key} style={{ padding: '12px' }}>
+        <Td key={column.key}>
           <TableCell
             tag={tag}
             column={column}
@@ -67,32 +67,30 @@ const TableRow: React.FC<TableRowProps> = ({
             onTagEdit={onTagEdit}
             onToggle={(field, value) => onToggle(tag.id, field, value)}
           />
-        </td>
+        </Td>
       ))}
-      <td style={{ padding: '12px' }}>
-        <MenuRoot>
-          <MenuTrigger asChild>
-            <IconButton
-              aria-label="Tag actions"
-              size="xs"
-              variant="ghost"
-            >
-              <ChevronDown size={16} />
-            </IconButton>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem value="edit" onClick={() => onTagEdit(tag)}>
-              <Edit size={16} style={{ marginRight: '8px' }} />
+      <Td>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label="Tag actions"
+            size="xs"
+            variant="ghost"
+            icon={<ChevronDownIcon />}
+          />
+          <MenuList>
+            <MenuItem onClick={() => onTagEdit(tag)}>
+              <EditIcon mr={2} />
               Edit Tag
             </MenuItem>
-            <MenuItem value="configure">
-              <Settings size={16} style={{ marginRight: '8px' }} />
+            <MenuItem>
+              <SettingsIcon mr={2} />
               Configure
             </MenuItem>
-          </MenuContent>
-        </MenuRoot>
-      </td>
-    </tr>
+          </MenuList>
+        </Menu>
+      </Td>
+    </Tr>
   );
 };
 

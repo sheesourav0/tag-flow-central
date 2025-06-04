@@ -1,25 +1,23 @@
 
 import React from 'react';
 import {
-  Stack,
+  VStack,
   HStack,
   Box,
   Text,
   Input,
   Button,
-  NativeSelectRoot,
-  NativeSelectField,
 } from '@chakra-ui/react';
-import { Plus } from 'lucide-react';
+import { AddIcon } from '@chakra-ui/icons';
 
 const NewConnectionForm: React.FC = () => {
   return (
-    <Stack gap={4}>
+    <VStack align="stretch" spacing={4}>
       <Text fontSize="sm" color="gray.600">
         Add a new data source connection.
       </Text>
       
-      <HStack gap={4}>
+      <HStack spacing={4}>
         <Box flex={1}>
           <Text fontSize="sm" fontWeight="medium" mb={1}>Connection Name</Text>
           <Input
@@ -30,15 +28,21 @@ const NewConnectionForm: React.FC = () => {
         
         <Box flex={1}>
           <Text fontSize="sm" fontWeight="medium" mb={1}>Connection Type</Text>
-          <NativeSelectRoot size="sm">
-            <NativeSelectField>
-              <option value="OPC UA">OPC UA</option>
-              <option value="MQTT">MQTT</option>
-              <option value="HTTPS">HTTPS API</option>
-              <option value="Modbus">Modbus TCP</option>
-              <option value="S7">Siemens S7</option>
-            </NativeSelectField>
-          </NativeSelectRoot>
+          <select 
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #e2e8f0',
+              borderRadius: '6px',
+              fontSize: '14px'
+            }}
+          >
+            <option value="OPC UA">OPC UA</option>
+            <option value="MQTT">MQTT</option>
+            <option value="HTTPS">HTTPS API</option>
+            <option value="Modbus">Modbus TCP</option>
+            <option value="S7">Siemens S7</option>
+          </select>
         </Box>
       </HStack>
 
@@ -50,11 +54,10 @@ const NewConnectionForm: React.FC = () => {
         />
       </Box>
 
-      <Button colorPalette="blue" size="sm" alignSelf="start">
-        <Plus size={16} style={{ marginRight: '4px' }} />
+      <Button colorScheme="blue" size="sm" alignSelf="start" leftIcon={<AddIcon />}>
         Add Connection
       </Button>
-    </Stack>
+    </VStack>
   );
 };
 

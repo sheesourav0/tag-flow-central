@@ -2,12 +2,12 @@
 import React from 'react';
 import {
   Box,
-  Stack,
+  VStack,
   HStack,
   Text,
   Button,
 } from '@chakra-ui/react';
-import { Plus } from 'lucide-react';
+import { AddIcon } from '@chakra-ui/icons';
 import { useGroups } from '../hooks/useGroups';
 import GroupItem from './tag-tree/GroupItem';
 
@@ -26,7 +26,7 @@ const TagTree = () => {
 
   return (
     <Box h="100%" p={4} overflowY="auto">
-      <Stack gap={2}>
+      <VStack align="stretch" spacing={2}>
         <Box border="1px" borderColor="gray.200" borderRadius="md">
           <Box py={3} px={4}>
             <HStack justify="space-between">
@@ -35,10 +35,10 @@ const TagTree = () => {
               </Text>
               <Button
                 size="xs"
-                colorPalette="brand"
+                colorScheme="brand"
                 onClick={handleAddGroup}
+                leftIcon={<AddIcon />}
               >
-                <Plus size={16} style={{ marginRight: '4px' }} />
                 Add Group
               </Button>
             </HStack>
@@ -48,7 +48,7 @@ const TagTree = () => {
         {groups.map(group => (
           <GroupItem key={group.id} group={group} />
         ))}
-      </Stack>
+      </VStack>
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import {
-  Stack,
+  VStack,
   HStack,
   Box,
   Text,
@@ -9,7 +9,7 @@ import {
   IconButton,
   Button,
 } from '@chakra-ui/react';
-import { Edit, Trash2 } from 'lucide-react';
+import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 
 interface Connection {
   id: string;
@@ -36,18 +36,18 @@ const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest }) 
   };
 
   return (
-    <Stack gap={4}>
+    <VStack align="stretch" spacing={4}>
       <Text fontSize="sm" color="gray.600">
         Manage active data source connections for your tags.
       </Text>
       
       {connections.map((connection) => (
         <Box key={connection.id} p={4} border="1px" borderColor="gray.200" borderRadius="md">
-          <HStack justify="space-between">
-            <Stack gap={2}>
-              <HStack gap={2}>
+          <HStack justify="space-between" align="start">
+            <VStack align="start" spacing={2}>
+              <HStack spacing={2}>
                 <Text fontWeight="semibold">{connection.name}</Text>
-                <Badge colorPalette={getStatusColor(connection.status)}>
+                <Badge colorScheme={getStatusColor(connection.status)}>
                   {connection.status}
                 </Badge>
                 <Badge variant="outline">{connection.type}</Badge>
@@ -58,12 +58,12 @@ const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest }) 
               <Text fontSize="xs" color="gray.500">
                 Last Update: {new Date(connection.lastUpdate).toLocaleString()}
               </Text>
-            </Stack>
+            </VStack>
             
-            <HStack gap={2}>
+            <HStack spacing={2}>
               <Button
                 size="xs"
-                colorPalette="blue"
+                colorScheme="blue"
                 onClick={() => onTest(connection)}
               >
                 Test
@@ -72,22 +72,20 @@ const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest }) 
                 aria-label="Edit connection"
                 size="xs"
                 variant="ghost"
-              >
-                <Edit size={14} />
-              </IconButton>
+                icon={<EditIcon />}
+              />
               <IconButton
                 aria-label="Delete connection"
                 size="xs"
                 variant="ghost"
-                colorPalette="red"
-              >
-                <Trash2 size={14} />
-              </IconButton>
+                colorScheme="red"
+                icon={<DeleteIcon />}
+              />
             </HStack>
           </HStack>
         </Box>
       ))}
-    </Stack>
+    </VStack>
   );
 };
 

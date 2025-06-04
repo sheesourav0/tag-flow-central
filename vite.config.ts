@@ -11,7 +11,9 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(),
+    react({
+      jsxImportSource: "@emotion/react",
+    }),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
@@ -21,21 +23,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: [
-      "@emotion/react", 
-      "@emotion/styled", 
-      "@chakra-ui/react",
-      "framer-motion"
-    ],
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          chakra: ["@chakra-ui/react"],
-          emotion: ["@emotion/react", "@emotion/styled"],
-        },
-      },
-    },
+    include: ["@emotion/react", "@emotion/styled", "@chakra-ui/react"],
   },
 }));

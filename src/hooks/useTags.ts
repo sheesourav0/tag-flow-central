@@ -56,6 +56,25 @@ export const useTags = () => {
     },
   });
 
+  const deleteTagMutation = useMutation({
+    mutationFn: tagService.deleteTag,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      toast({
+        title: 'Success',
+        description: 'Tag deleted successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete tag',
+        variant: 'destructive',
+      });
+      console.error('Delete tag error:', error);
+    },
+  });
+
   const deleteTagsMutation = useMutation({
     mutationFn: tagService.deleteTags,
     onSuccess: () => {
@@ -82,9 +101,10 @@ export const useTags = () => {
     refetch,
     createTag: createTagMutation.mutate,
     updateTag: updateTagMutation.mutate,
+    deleteTag: deleteTagMutation.mutate,
     deleteTags: deleteTagsMutation.mutate,
     isCreating: createTagMutation.isPending,
     isUpdating: updateTagMutation.isPending,
-    isDeleting: deleteTagsMutation.isPending,
+    isDeleting: deleteTagMutation.isPending || deleteTagsMutation.isPending,
   };
 };

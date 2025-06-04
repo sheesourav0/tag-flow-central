@@ -62,7 +62,7 @@ const TagFlowCentral = () => {
   if (tagsLoading) {
     return (
       <Box h="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center">
-        <Box color="gray.600" fontSize="lg">Loading tags...</Box>
+        <text>Loading tags...</text>
       </Box>
     );
   }
@@ -103,18 +103,18 @@ const TagFlowCentral = () => {
 
       {/* Modals */}
       <TagModal
-        isOpen={tagModalDisclosure.open}
+        isOpen={tagModalDisclosure.isOpen}
         onClose={tagModalDisclosure.onClose}
         tag={editingTag}
       />
 
       <SettingsModal
-        isOpen={settingsModalDisclosure.open}
+        isOpen={settingsModalDisclosure.isOpen}
         onClose={settingsModalDisclosure.onClose}
       />
 
       <DataSourceModal
-        isOpen={dataSourceModalDisclosure.open}
+        isOpen={dataSourceModalDisclosure.isOpen}
         onClose={dataSourceModalDisclosure.onClose}
       />
     </Box>

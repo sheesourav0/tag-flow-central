@@ -2,20 +2,19 @@
 import React from 'react';
 import {
   Button,
-  Stack,
+  VStack,
   HStack,
   Text,
   Badge,
   Box,
-  DialogRoot,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  DialogTitle,
-  DialogCloseTrigger,
-  CloseButton,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Switch,
 } from '@chakra-ui/react';
 import { useTagStore } from '../store/tagStore';
 
@@ -30,22 +29,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const visibleCount = columns.filter(col => col.visible).length;
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            Column Settings
-            <Badge ml={2} colorPalette="blue">
-              {visibleCount}/{columns.length} visible
-            </Badge>
-          </DialogTitle>
-          <DialogCloseTrigger asChild>
-            <CloseButton />
-          </DialogCloseTrigger>
-        </DialogHeader>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          Column Settings
+          <Badge ml={2} colorScheme="blue">
+            {visibleCount}/{columns.length} visible
+          </Badge>
+        </ModalHeader>
+        <ModalCloseButton />
         
-        <DialogBody>
-          <Stack gap={3}>
+        <ModalBody>
+          <VStack align="stretch" spacing={3}>
             <Text fontSize="sm" color="gray.600">
               Configure which columns to display in the tag table.
             </Text>
@@ -54,33 +50,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             
             {columns.map((column) => (
               <HStack key={column.key} justify="space-between" p={2} borderRadius="md" _hover={{ bg: 'gray.50' }}>
-                <Stack gap={0}>
+                <VStack align="start" spacing={0}>
                   <Text fontSize="sm" fontWeight="medium">
                     {column.label}
                   </Text>
                   <Text fontSize="xs" color="gray.500">
                     Width: {column.width}px
                   </Text>
-                </Stack>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={column.visible}
-                    onChange={() => toggleColumn(column.key)}
-                  />
-                </label>
+                </VStack>
+                <Switch
+                  isChecked={column.visible}
+                  onChange={() => toggleColumn(column.key)}
+                />
               </HStack>
             ))}
-          </Stack>
-        </DialogBody>
+          </VStack>
+        </ModalBody>
 
-        <DialogFooter>
-          <Button colorPalette="blue" onClick={onClose} size="sm">
+        <ModalFooter>
+          <Button colorScheme="blue" onClick={onClose} size="sm">
             Done
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </DialogRoot>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 
