@@ -14,7 +14,7 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { useDataSources } from '../../hooks/useDataSources';
+import { useDataSources, DataSource } from '../../hooks/useDataSources';
 import ClickableTooltip from '../ui/clickable-tooltip';
 
 interface NewConnectionFormProps {
@@ -23,9 +23,13 @@ interface NewConnectionFormProps {
 
 const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
   const { addDataSource, isLoading } = useDataSources();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    type: DataSource['type'];
+    endpoint: string;
+  }>({
     name: '',
-    type: 'OPC UA' as const,
+    type: 'OPC UA',
     endpoint: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
@@ -47,7 +51,7 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     }
   };
 
-  const getEndpointPlaceholder = () => {
+  const getEndpointPlaceholder = (): string => {
     switch (formData.type) {
       case 'OPC UA':
         return 'opc.tcp://192.168.1.100:4840';
@@ -126,7 +130,7 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
             </HStack>
             <select 
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as DataSource['type'] }))}
               style={{
                 width: '100%',
                 padding: '8px 12px',

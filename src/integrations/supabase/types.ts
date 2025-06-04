@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      data_sources: {
+        Row: {
+          config: Json | null
+          created_at: string
+          endpoint: string
+          id: string
+          last_update: string | null
+          name: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_update?: string | null
+          name: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_update?: string | null
+          name?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           created_at: string

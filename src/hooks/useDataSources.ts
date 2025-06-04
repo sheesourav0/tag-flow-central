@@ -1,44 +1,37 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { dataSourceService, DataSource } from '../services/dataSourceService';
+import { useToast } from '@/hooks/use-toast';
 
-export interface DataSource {
-  id: string;
-  name: string;
-  type: 'OPC UA' | 'MQTT' | 'HTTPS' | 'Modbus' | 'S7';
-  endpoint: string;
-  status: 'Connected' | 'Disconnected' | 'Connecting' | 'Error';
-  lastUpdate: string;
-  config?: {
-    username?: string;
-    password?: string;
-    port?: number;
-    timeout?: number;
-    [key: string]: any;
-  };
-}
-
-const mockDataSources: DataSource[] = [
-  {
-    id: '1',
-    name: 'Main PLC',
-    type: 'OPC UA',
-    endpoint: 'opc.tcp://192.168.1.100:4840',
-    status: 'Connected',
-    lastUpdate: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'MQTT Broker',
-    type: 'MQTT',
-    endpoint: 'mqtt://broker.local:1883',
-    status: 'Connected',
-    lastUpdate: new Date().toISOString(),
-  },
-];
+export { DataSource } from '../services/dataSourceService';
 
 export const useDataSources = () => {
-  const [dataSources, setDataSources] = useState<DataSource[]>(mockDataSources);
+  const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Fetch data sources from database
+  const fetchDataSources = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await dataSourceService.getAllDataSources();
+      setDataSources(data);
+    } catch (error) {
+      console.error('Error fetching data sources:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch data sources",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  // Load data sources on mount
+  useEffect(() => {
+    fetchDataSources();
+  }, [fetchDataSources]);
 
   const validateDataSource = useCallback((dataSource: Partial<DataSource>): string[] => {
     const errors: string[] = [];
@@ -54,10 +47,32 @@ export const useDataSources = () => {
     if (!dataSource.endpoint?.trim()) {
       errors.push('Endpoint URL is required');
     } else {
-      // Basic URL validation
-      const urlPattern = /^(https?|mqtt|opc\.tcp):\/\/.+/i;
-      if (!urlPattern.test(dataSource.endpoint)) {
-        errors.push('Invalid endpoint URL format');
+      // Basic URL validation based on type
+      const endpoint = dataSource.endpoint;
+      switch (dataSource.type) {
+        case 'OPC UA':
+          if (!endpoint.startsWith('opc.tcp://')) {
+            errors.push('OPC UA endpoint must start with opc.tcp://');
+          }
+          break;
+        case 'MQTT':
+          if (!endpoint.startsWith('mqtt://') && !endpoint.startsWith('mqtts://')) {
+            errors.push('MQTT endpoint must start with mqtt:// or mqtts://');
+          }
+          break;
+        case 'HTTPS':
+          if (!endpoint.startsWith('https://') && !endpoint.startsWith('http://')) {
+            errors.push('HTTPS endpoint must start with https:// or http://');
+          }
+          break;
+        case 'Modbus':
+        case 'S7':
+          // Basic IP:port validation
+          const ipPortPattern = /^(\d{1,3}\.){3}\d{1,3}:\d+$/;
+          if (!ipPortPattern.test(endpoint)) {
+            errors.push(`${dataSource.type} endpoint must be in format IP:PORT (e.g., 192.168.1.100:502)`);
+          }
+          break;
       }
     }
     
@@ -65,32 +80,35 @@ export const useDataSources = () => {
   }, []);
 
   const testConnection = useCallback(async (dataSource: DataSource): Promise<boolean> => {
-    setIsLoading(true);
     try {
-      // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsLoading(true);
+      const success = await dataSourceService.testConnection(dataSource.id);
       
-      // Update status
-      setDataSources(prev => prev.map(ds => 
-        ds.id === dataSource.id 
-          ? { ...ds, status: 'Connected' as const, lastUpdate: new Date().toISOString() }
-          : ds
-      ));
+      toast({
+        title: success ? "Connection Successful" : "Connection Failed",
+        description: success 
+          ? `Successfully connected to ${dataSource.name}` 
+          : `Failed to connect to ${dataSource.name}`,
+        variant: success ? "default" : "destructive",
+      });
       
-      return true;
+      // Refresh data sources to get updated status
+      await fetchDataSources();
+      
+      return success;
     } catch (error) {
-      setDataSources(prev => prev.map(ds => 
-        ds.id === dataSource.id 
-          ? { ...ds, status: 'Error' as const }
-          : ds
-      ));
+      toast({
+        title: "Connection Error",
+        description: `Error testing connection to ${dataSource.name}`,
+        variant: "destructive",
+      });
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [toast, fetchDataSources]);
 
-  const addDataSource = useCallback(async (newDataSource: Omit<DataSource, 'id' | 'status' | 'lastUpdate'>): Promise<{ success: boolean; errors: string[]; id?: string }> => {
+  const addDataSource = useCallback(async (newDataSource: Omit<DataSource, 'id' | 'status' | 'last_update' | 'created_at' | 'updated_at'>): Promise<{ success: boolean; errors: string[]; id?: string }> => {
     const errors = validateDataSource(newDataSource);
     
     if (errors.length > 0) {
@@ -102,17 +120,31 @@ export const useDataSources = () => {
       return { success: false, errors: ['A connection with this name already exists'] };
     }
 
-    const dataSource: DataSource = {
-      ...newDataSource,
-      id: Date.now().toString(),
-      status: 'Disconnected',
-      lastUpdate: new Date().toISOString(),
-    };
-
-    setDataSources(prev => [...prev, dataSource]);
-    
-    return { success: true, errors: [], id: dataSource.id };
-  }, [dataSources, validateDataSource]);
+    try {
+      setIsLoading(true);
+      const dataSource = await dataSourceService.createDataSource({
+        ...newDataSource,
+        config: {}
+      });
+      
+      await fetchDataSources();
+      
+      toast({
+        title: "Success",
+        description: "Data source created successfully",
+      });
+      
+      return { success: true, errors: [], id: dataSource.id };
+    } catch (error: any) {
+      const errorMessage = error.message?.includes('duplicate key') 
+        ? 'A connection with this name already exists'
+        : 'Failed to create data source';
+        
+      return { success: false, errors: [errorMessage] };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dataSources, validateDataSource, fetchDataSources, toast]);
 
   const updateDataSource = useCallback(async (id: string, updates: Partial<DataSource>): Promise<{ success: boolean; errors: string[] }> => {
     const errors = validateDataSource(updates);
@@ -121,18 +153,44 @@ export const useDataSources = () => {
       return { success: false, errors };
     }
 
-    setDataSources(prev => prev.map(ds => 
-      ds.id === id 
-        ? { ...ds, ...updates, lastUpdate: new Date().toISOString() }
-        : ds
-    ));
-    
-    return { success: true, errors: [] };
-  }, [validateDataSource]);
+    try {
+      setIsLoading(true);
+      await dataSourceService.updateDataSource(id, updates);
+      await fetchDataSources();
+      
+      toast({
+        title: "Success",
+        description: "Data source updated successfully",
+      });
+      
+      return { success: true, errors: [] };
+    } catch (error) {
+      return { success: false, errors: ['Failed to update data source'] };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [validateDataSource, fetchDataSources, toast]);
 
-  const deleteDataSource = useCallback((id: string) => {
-    setDataSources(prev => prev.filter(ds => ds.id !== id));
-  }, []);
+  const deleteDataSource = useCallback(async (id: string) => {
+    try {
+      setIsLoading(true);
+      await dataSourceService.deleteDataSource(id);
+      await fetchDataSources();
+      
+      toast({
+        title: "Success",
+        description: "Data source deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete data source",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchDataSources, toast]);
 
   return {
     dataSources,
@@ -142,5 +200,6 @@ export const useDataSources = () => {
     deleteDataSource,
     testConnection,
     validateDataSource,
+    refetch: fetchDataSources,
   };
 };
