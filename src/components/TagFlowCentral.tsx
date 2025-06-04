@@ -103,18 +103,18 @@ const TagFlowCentral = () => {
 
       {/* Modals */}
       <TagModal
-        isOpen={tagModalDisclosure.isOpen}
+        isOpen={tagModalDisclosure.open}
         onClose={tagModalDisclosure.onClose}
         tag={editingTag}
       />
 
       <SettingsModal
-        isOpen={settingsModalDisclosure.isOpen}
+        isOpen={settingsModalDisclosure.open}
         onClose={settingsModalDisclosure.onClose}
       />
 
       <DataSourceModal
-        isOpen={dataSourceModalDisclosure.isOpen}
+        isOpen={dataSourceModalDisclosure.open}
         onClose={dataSourceModalDisclosure.onClose}
       />
     </Box>
