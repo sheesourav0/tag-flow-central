@@ -14,6 +14,7 @@ import {
   NumberDecrementStepper,
   Tooltip,
 } from '@chakra-ui/react';
+import AnimatedTooltip from '../ui/animated-tooltip';
 
 interface DataSourceTabProps {
   formData: any;
@@ -21,6 +22,13 @@ interface DataSourceTabProps {
 }
 
 const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) => {
+  const handleAddDataSource = () => {
+    // This would open the data source modal
+    console.log('Opening data source management...');
+    // In a real implementation, this would trigger opening the DataSourceModal
+    alert('This would open the Data Source Management modal where you can add new connections to MQTT brokers, OPC servers, APIs, etc.');
+  };
+
   const renderDataSourceFields = () => {
     switch (formData.data_source) {
       case 'MQTT':
@@ -342,29 +350,48 @@ const DataSourceTab: React.FC<DataSourceTabProps> = ({ formData, setFormData }) 
   return (
     <VStack align="stretch" spacing={4}>
       <Box>
-        <Tooltip 
-          label="Choose where this tag gets its data from. Internal means manually set values, while external sources provide real-time data."
-          hasArrow
-          placement="top"
-          bg="gray.600"
-          color="white"
-          fontSize="sm"
+        <AnimatedTooltip
+          content={
+            <div>
+              <p className="font-medium text-gray-800 mb-2">Data Source Selection</p>
+              <p className="mb-3">Choose where this tag gets its data from:</p>
+              <ul className="text-xs space-y-1 mb-3">
+                <li>• <strong>Internal:</strong> Manually set values</li>
+                <li>• <strong>MQTT:</strong> Real-time IoT messaging</li>
+                <li>• <strong>OPC UA:</strong> Industrial automation</li>
+                <li>• <strong>Modbus:</strong> Equipment communication</li>
+                <li>• <strong>HTTPS:</strong> Web APIs and services</li>
+              </ul>
+              <p className="text-xs text-gray-600">Need a new connection? Click below to manage data sources.</p>
+            </div>
+          }
+          actionText="Manage Data Sources"
+          onAction={handleAddDataSource}
         >
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
-            <Select
-              value={formData.data_source}
-              onChange={(e) => setFormData(prev => ({ ...prev, data_source: e.target.value }))}
-              size="sm"
-            >
-              <option value="Internal">Internal</option>
-              <option value="MQTT">MQTT</option>
-              <option value="HTTPS">HTTPS API</option>
-              <option value="OPC">OPC UA</option>
-              <option value="Modbus">Modbus TCP</option>
-            </Select>
-          </Box>
-        </Tooltip>
+          <Tooltip 
+            label="Choose where this tag gets its data from. Internal means manually set values, while external sources provide real-time data."
+            hasArrow
+            placement="top"
+            bg="gray.600"
+            color="white"
+            fontSize="sm"
+          >
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={1}>Data Source</Text>
+              <Select
+                value={formData.data_source}
+                onChange={(e) => setFormData(prev => ({ ...prev, data_source: e.target.value }))}
+                size="sm"
+              >
+                <option value="Internal">Internal</option>
+                <option value="MQTT">MQTT</option>
+                <option value="HTTPS">HTTPS API</option>
+                <option value="OPC">OPC UA</option>
+                <option value="Modbus">Modbus TCP</option>
+              </Select>
+            </Box>
+          </Tooltip>
+        </AnimatedTooltip>
       </Box>
 
       <Box>
