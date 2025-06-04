@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import ConnectionList from './data-source/ConnectionList';
 import NewConnectionForm from './data-source/NewConnectionForm';
+import { useDataSources } from '../hooks/useDataSources';
 
 interface DataSourceModalProps {
   isOpen: boolean;
@@ -20,37 +21,16 @@ interface DataSourceModalProps {
 }
 
 const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) => {
-  const [connections] = useState([
-    {
-      id: '1',
-      name: 'Main PLC',
-      type: 'OPC UA',
-      endpoint: 'opc.tcp://192.168.1.100:4840',
-      status: 'Connected',
-      lastUpdate: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      name: 'MQTT Broker',
-      type: 'MQTT',
-      endpoint: 'mqtt://broker.local:1883',
-      status: 'Connected',
-      lastUpdate: new Date().toISOString(),
-    },
-    {
-      id: '3',
-      name: 'Weather API',
-      type: 'HTTPS',
-      endpoint: 'https://api.weather.com/v1',
-      status: 'Disconnected',
-      lastUpdate: new Date().toISOString(),
-    },
-  ]);
-
+  const { dataSources, testConnection } = useDataSources();
   const [activeTab, setActiveTab] = useState('connections');
 
   const handleTestConnection = (connection: any) => {
-    console.log('Testing connection:', connection.name);
+    testConnection(connection);
+  };
+
+  const handleConnectionAdded = () => {
+    // Switch to connections tab to show the new connection
+    setActiveTab('connections');
   };
 
   return (
@@ -68,7 +48,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
               size="sm"
               onClick={() => setActiveTab('connections')}
             >
-              Active Connections
+              Active Connections ({dataSources.length})
             </Button>
             <Button
               variant={activeTab === 'new' ? 'solid' : 'ghost'}
@@ -82,12 +62,14 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
           {/* Tab Content */}
           {activeTab === 'connections' && (
             <ConnectionList 
-              connections={connections} 
+              connections={dataSources} 
               onTest={handleTestConnection} 
             />
           )}
           
-          {activeTab === 'new' && <NewConnectionForm />}
+          {activeTab === 'new' && (
+            <NewConnectionForm onSuccess={handleConnectionAdded} />
+          )}
         </ModalBody>
 
         <ModalFooter>
