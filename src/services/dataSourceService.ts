@@ -184,7 +184,7 @@ export const dataSourceService = {
       
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...httpsConfig.headers
+        ...(httpsConfig.headers || {})
       };
 
       // Add authentication if configured
@@ -246,7 +246,24 @@ export const dataSourceService = {
           battery_level: Math.floor(Math.random() * 100),
           grid_status: Math.random() > 0.5 ? 1 : 0,
           bulk_flow_meter_reading: Math.floor(Math.random() * 10000),
-          bulk_flow_meter_rate: Math.random() * 5
+          bulk_flow_meter_rate: Math.random() * 5,
+          electrical_parameters: {
+            pf: 1,
+            total_KW: Math.random() * 100,
+            total_KWH: Math.floor(Math.random() * 5000),
+            realtime_current: Math.random() * 10,
+            realtime_voltage_parameters: {
+              phase_voltage_r: 240 + Math.random() * 10,
+              phase_voltage_y: 240 + Math.random() * 10,
+              phase_voltage_b: 240 + Math.random() * 10,
+              "3_phase_voltage_avg": 415 + Math.random() * 20
+            }
+          },
+          water_levels: {
+            esr: Math.floor(Math.random() * 50),
+            ugr: Math.floor(Math.random() * 100),
+            tp: Math.random()
+          }
         }
       };
 

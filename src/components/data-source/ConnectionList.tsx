@@ -22,9 +22,10 @@ import { DataSource, useDataSources } from '../../hooks/useDataSources';
 interface ConnectionListProps {
   connections: DataSource[];
   onTest: (connection: DataSource) => void;
+  connectionData: Record<string, any>;
 }
 
-const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest }) => {
+const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest, connectionData }) => {
   const { deleteDataSource, isLoading } = useDataSources();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteId, setDeleteId] = React.useState<string>('');
@@ -88,6 +89,14 @@ const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest }) 
                       : 'Never'
                     }
                   </Text>
+                  {connectionData[connection.id] && (
+                    <Box>
+                      <Text fontSize="xs" color="gray.600" fontWeight="medium">Sample Data:</Text>
+                      <Box fontSize="xs" fontFamily="mono" bg="gray.50" p={2} borderRadius="md" maxH="100px" overflow="auto">
+                        <pre>{JSON.stringify(connectionData[connection.id], null, 2)}</pre>
+                      </Box>
+                    </Box>
+                  )}
                 </VStack>
                 
                 <HStack spacing={2}>
