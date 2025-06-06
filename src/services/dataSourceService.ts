@@ -26,14 +26,17 @@ export const dataSourceService = {
       throw error;
     }
     
-    return data || [];
+    return (data || []) as DataSource[];
   },
 
   // Create a new data source
   async createDataSource(dataSource: Omit<DataSource, 'id' | 'status' | 'last_update' | 'created_at' | 'updated_at'>): Promise<DataSource> {
     const { data, error } = await supabase
       .from('data_sources')
-      .insert([dataSource])
+      .insert([{
+        ...dataSource,
+        status: 'Disconnected'
+      }])
       .select()
       .single();
     
@@ -42,7 +45,7 @@ export const dataSourceService = {
       throw error;
     }
     
-    return data;
+    return data as DataSource;
   },
 
   // Update a data source
@@ -59,7 +62,7 @@ export const dataSourceService = {
       throw error;
     }
     
-    return data;
+    return data as DataSource;
   },
 
   // Delete a data source

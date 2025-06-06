@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { dataSourceService, DataSource } from '../services/dataSourceService';
 import { useToast } from '@/hooks/use-toast';
 
-export { DataSource } from '../services/dataSourceService';
+export type { DataSource } from '../services/dataSourceService';
 
 export const useDataSources = () => {
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
@@ -122,10 +122,7 @@ export const useDataSources = () => {
 
     try {
       setIsLoading(true);
-      const dataSource = await dataSourceService.createDataSource({
-        ...newDataSource,
-        config: {}
-      });
+      const dataSource = await dataSourceService.createDataSource(newDataSource);
       
       await fetchDataSources();
       

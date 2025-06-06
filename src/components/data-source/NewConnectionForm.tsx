@@ -27,10 +27,12 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     name: string;
     type: DataSource['type'];
     endpoint: string;
+    config: any;
   }>({
     name: '',
     type: 'OPC UA',
     endpoint: '',
+    config: {},
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState('');
@@ -44,14 +46,14 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     
     if (result.success) {
       setSuccessMessage('Connection added successfully!');
-      setFormData({ name: '', type: 'OPC UA', endpoint: '' });
+      setFormData({ name: '', type: 'OPC UA', endpoint: '', config: {} });
       onSuccess?.();
     } else {
       setErrors(result.errors);
     }
   };
 
-  const getEndpointPlaceholder = (): string => {
+  const getEndpointPlaceholder = () => {
     switch (formData.type) {
       case 'OPC UA':
         return 'opc.tcp://192.168.1.100:4840';
