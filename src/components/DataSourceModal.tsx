@@ -10,6 +10,10 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Text,
+  Badge,
+  VStack,
+  Box,
 } from '@chakra-ui/react';
 import ConnectionList from './data-source/ConnectionList';
 import NewConnectionForm from './data-source/NewConnectionForm';
@@ -21,7 +25,7 @@ interface DataSourceModalProps {
 }
 
 const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) => {
-  const { dataSources, testConnection } = useDataSources();
+  const { dataSources, testConnection, connectionData } = useDataSources();
   const [activeTab, setActiveTab] = useState('connections');
 
   const handleTestConnection = (connection: any) => {
@@ -33,11 +37,32 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
     setActiveTab('connections');
   };
 
+  const connectedCount = dataSources.filter(ds => ds.status === 'Connected').length;
+  const errorCount = dataSources.filter(ds => ds.status === 'Error').length;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="6xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Data Source Connections</ModalHeader>
+        <ModalHeader>
+          <VStack align="start" spacing={2}>
+            <Text>Data Source Connections</Text>
+            <HStack spacing={4}>
+              <HStack spacing={1}>
+                <Badge colorScheme="green">{connectedCount}</Badge>
+                <Text fontSize="sm" color="gray.600">Connected</Text>
+              </HStack>
+              <HStack spacing={1}>
+                <Badge colorScheme="red">{errorCount}</Badge>
+                <Text fontSize="sm" color="gray.600">Error</Text>
+              </HStack>
+              <HStack spacing={1}>
+                <Badge>{dataSources.length}</Badge>
+                <Text fontSize="sm" color="gray.600">Total</Text>
+              </HStack>
+            </HStack>
+          </VStack>
+        </ModalHeader>
         <ModalCloseButton />
         
         <ModalBody>
@@ -61,10 +86,13 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) =>
           
           {/* Tab Content */}
           {activeTab === 'connections' && (
-            <ConnectionList 
-              connections={dataSources} 
-              onTest={handleTestConnection} 
-            />
+            <Box>
+              <ConnectionList 
+                connections={dataSources} 
+                onTest={handleTestConnection}
+                connectionData={connectionData}
+              />
+            </Box>
           )}
           
           {activeTab === 'new' && (

@@ -8,6 +8,7 @@ export type { DataSource } from '../services/dataSourceService';
 export const useDataSources = () => {
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionData, setConnectionData] = useState<Record<string, any>>({});
   const { toast } = useToast();
 
   // Fetch data sources from database
@@ -82,20 +83,25 @@ export const useDataSources = () => {
   const testConnection = useCallback(async (dataSource: DataSource): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const success = await dataSourceService.testConnection(dataSource.id);
+      const result = await dataSourceService.testConnection(dataSource);
+      
+      if (result.data) {
+        setConnectionData(prev => ({
+          ...prev,
+          [dataSource.id]: result.data
+        }));
+      }
       
       toast({
-        title: success ? "Connection Successful" : "Connection Failed",
-        description: success 
-          ? `Successfully connected to ${dataSource.name}` 
-          : `Failed to connect to ${dataSource.name}`,
-        variant: success ? "default" : "destructive",
+        title: result.success ? "Connection Successful" : "Connection Failed",
+        description: result.message,
+        variant: result.success ? "default" : "destructive",
       });
       
       // Refresh data sources to get updated status
       await fetchDataSources();
       
-      return success;
+      return result.success;
     } catch (error) {
       toast({
         title: "Connection Error",
@@ -172,6 +178,14 @@ export const useDataSources = () => {
     try {
       setIsLoading(true);
       await dataSourceService.deleteDataSource(id);
+      
+      // Remove connection data for this source
+      setConnectionData(prev => {
+        const newData = { ...prev };
+        delete newData[id];
+        return newData;
+      });
+      
       await fetchDataSources();
       
       toast({
@@ -189,13 +203,58 @@ export const useDataSources = () => {
     }
   }, [fetchDataSources, toast]);
 
+  const startDataCollection = useCallback(async (dataSource: DataSource) => {
+    try {
+      setIsLoading(true);
+      await dataSourceService.startDataCollection(dataSource);
+      await fetchDataSources();
+      
+      toast({
+        title: "Success",
+        description: `Started data collection for ${dataSource.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to start data collection",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchDataSources, toast]);
+
+  const stopDataCollection = useCallback(async (dataSource: DataSource) => {
+    try {
+      setIsLoading(true);
+      await dataSourceService.stopDataCollection(dataSource);
+      await fetchDataSources();
+      
+      toast({
+        title: "Success",
+        description: `Stopped data collection for ${dataSource.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to stop data collection",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchDataSources, toast]);
+
   return {
     dataSources,
     isLoading,
+    connectionData,
     addDataSource,
     updateDataSource,
     deleteDataSource,
     testConnection,
+    startDataCollection,
+    stopDataCollection,
     validateDataSource,
     refetch: fetchDataSources,
   };

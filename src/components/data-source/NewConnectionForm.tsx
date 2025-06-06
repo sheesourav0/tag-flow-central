@@ -15,7 +15,9 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { useDataSources, DataSource } from '../../hooks/useDataSources';
+import { DataSourceConfig } from '../../services/dataSourceService';
 import ClickableTooltip from '../ui/clickable-tooltip';
+import DataSourceConfigForm from './DataSourceConfigForm';
 
 interface NewConnectionFormProps {
   onSuccess?: () => void;
@@ -27,7 +29,7 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     name: string;
     type: DataSource['type'];
     endpoint: string;
-    config: any;
+    config: DataSourceConfig;
   }>({
     name: '',
     type: 'OPC UA',
@@ -46,7 +48,12 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     
     if (result.success) {
       setSuccessMessage('Connection added successfully!');
-      setFormData({ name: '', type: 'OPC UA', endpoint: '', config: {} });
+      setFormData({ 
+        name: '', 
+        type: 'OPC UA', 
+        endpoint: '', 
+        config: {} 
+      });
       onSuccess?.();
     } else {
       setErrors(result.errors);
@@ -60,7 +67,7 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
       case 'MQTT':
         return 'mqtt://broker.local:1883';
       case 'HTTPS':
-        return 'https://api.example.com/v1';
+        return 'https://api.example.com/v1/data';
       case 'Modbus':
         return '192.168.1.100:502';
       case 'S7':
@@ -70,11 +77,15 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
     }
   };
 
+  const handleConfigChange = (config: DataSourceConfig) => {
+    setFormData(prev => ({ ...prev, config }));
+  };
+
   return (
     <form onSubmit={handleSubmit}>
-      <VStack align="stretch" spacing={4}>
+      <VStack align="stretch" spacing={6}>
         <Text fontSize="sm" color="gray.600">
-          Add a new data source connection to start collecting real-time data.
+          Add a new data source connection to start collecting real-time data from your devices and systems.
         </Text>
         
         {errors.length > 0 && (
@@ -132,7 +143,11 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
             </HStack>
             <select 
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as DataSource['type'] }))}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                type: e.target.value as DataSource['type'],
+                config: {} // Reset config when type changes
+              }))}
               style={{
                 width: '100%',
                 padding: '8px 12px',
@@ -165,6 +180,18 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
           />
           <FormErrorMessage fontSize="xs">Valid endpoint URL is required</FormErrorMessage>
         </FormControl>
+
+        {/* Configuration Section */}
+        <Box>
+          <Text fontSize="sm" fontWeight="medium" mb={3}>
+            Advanced Configuration
+          </Text>
+          <DataSourceConfigForm
+            dataSource={formData}
+            config={formData.config}
+            onConfigChange={handleConfigChange}
+          />
+        </Box>
 
         <Button 
           type="submit"
