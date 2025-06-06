@@ -68,7 +68,11 @@ export const dataSourceService = {
       throw error;
     }
     
-    return (data || []) as DataSource[];
+    return (data || []).map(item => ({
+      ...item,
+      type: item.type as DataSource['type'],
+      status: item.status as DataSource['status']
+    })) as DataSource[];
   },
 
   // Create a new data source
@@ -87,7 +91,11 @@ export const dataSourceService = {
       throw error;
     }
     
-    return data as DataSource;
+    return {
+      ...data,
+      type: data.type as DataSource['type'],
+      status: data.status as DataSource['status']
+    } as DataSource;
   },
 
   // Update a data source
@@ -104,7 +112,11 @@ export const dataSourceService = {
       throw error;
     }
     
-    return data as DataSource;
+    return {
+      ...data,
+      type: data.type as DataSource['type'],
+      status: data.status as DataSource['status']
+    } as DataSource;
   },
 
   // Delete a data source
