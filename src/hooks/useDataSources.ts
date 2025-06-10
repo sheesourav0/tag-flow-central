@@ -1,12 +1,15 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@chakra-ui/react';
+import { createToaster } from '@chakra-ui/react';
 import { dataSourceService } from '../services/dataSourceService';
 import { DataSource } from '../types/dataSource';
 
+const toaster = createToaster({
+  placement: 'top',
+});
+
 export const useDataSources = () => {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const {
     data: dataSources,
@@ -22,20 +25,18 @@ export const useDataSources = () => {
     mutationFn: dataSourceService.createDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dataSources'] });
-      toast({
+      toaster.create({
         title: 'Data source created successfully',
         status: 'success',
         duration: 3000,
-        isClosable: true,
       });
     },
     onError: (error: Error) => {
-      toast({
+      toaster.create({
         title: 'Failed to create data source',
         description: error.message,
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     },
   });
@@ -45,20 +46,18 @@ export const useDataSources = () => {
       dataSourceService.updateDataSource(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dataSources'] });
-      toast({
+      toaster.create({
         title: 'Data source updated successfully',
         status: 'success',
         duration: 3000,
-        isClosable: true,
       });
     },
     onError: (error: Error) => {
-      toast({
+      toaster.create({
         title: 'Failed to update data source',
         description: error.message,
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     },
   });
@@ -67,20 +66,18 @@ export const useDataSources = () => {
     mutationFn: dataSourceService.deleteDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dataSources'] });
-      toast({
+      toaster.create({
         title: 'Data source deleted successfully',
         status: 'success',
         duration: 3000,
-        isClosable: true,
       });
     },
     onError: (error: Error) => {
-      toast({
+      toaster.create({
         title: 'Failed to delete data source',
         description: error.message,
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     },
   });

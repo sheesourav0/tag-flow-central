@@ -133,7 +133,7 @@ export const dataSourceService = {
         headers['X-API-Key'] = config.authToken;
       }
 
-      const response = await fetch(config.url, {
+      const response = await fetch(config.url || '', {
         method: config.method || 'GET',
         headers,
       });
@@ -156,7 +156,7 @@ export const dataSourceService = {
   async testWebSocketConnection(config: DataSourceConfig): Promise<{ success: boolean; data?: any; error?: string }> {
     return new Promise((resolve) => {
       try {
-        const ws = new WebSocket(config.url);
+        const ws = new WebSocket(config.url || '');
         const timeout = setTimeout(() => {
           ws.close();
           resolve({ success: false, error: 'Connection timeout' });

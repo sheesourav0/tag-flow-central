@@ -10,7 +10,7 @@ import {
   SimpleGrid,
   Heading,
 } from '@chakra-ui/react';
-import { Database, Globe, Wifi, Play } from 'lucide-react';
+import { MdStorage, MdLanguage, MdWifi, MdPlayArrow } from 'react-icons/md';
 import { DataSource } from '../../types/dataSource';
 
 interface ConnectionListProps {
@@ -29,13 +29,13 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
   const getIcon = (type: string) => {
     switch (type) {
       case 'rest_api':
-        return Globe;
+        return MdLanguage;
       case 'websocket':
-        return Wifi;
+        return MdWifi;
       case 'mqtt':
-        return Database;
+        return MdStorage;
       default:
-        return Database;
+        return MdStorage;
     }
   };
 
@@ -55,7 +55,7 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
   if (connections.length === 0) {
     return (
       <Box textAlign="center" py={8}>
-        <Database size={48} color="gray" style={{ margin: '0 auto 16px' }} />
+        <MdStorage size={48} color="gray" style={{ margin: '0 auto 16px' }} />
         <Heading size="md" color="gray.600" mb={2}>
           No connections available
         </Heading>
@@ -72,7 +72,7 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
         Select a Connection
       </Text>
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
         {connections.map((connection) => {
           const IconComponent = getIcon(connection.type);
           return (
@@ -113,7 +113,7 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
                 </HStack>
 
                 {connection.description && (
-                  <Text fontSize="sm" color="gray.600" noOfLines={2}>
+                  <Text fontSize="sm" color="gray.600" lineClamp={2}>
                     {connection.description}
                   </Text>
                 )}
@@ -127,7 +127,7 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
                       onTest(connection);
                     }}
                   >
-                    <Play size={16} style={{ marginRight: '8px' }} />
+                    <MdPlayArrow size={16} style={{ marginRight: '8px' }} />
                     Test
                   </Button>
                   <Button

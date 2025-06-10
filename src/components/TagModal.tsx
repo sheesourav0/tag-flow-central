@@ -4,18 +4,17 @@ import {
   Button,
   VStack,
   Badge,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogTitle,
+  TabsRoot,
+  TabsList,
+  TabsContent,
+  TabsTrigger,
 } from '@chakra-ui/react';
 import { DatabaseTag } from '../services/tagService';
 import { useTags } from '../hooks/useTags';
@@ -120,53 +119,52 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          {tag ? 'Edit Tag' : 'Add New Tag'}
-          {tag && (
-            <Badge ml={2} colorScheme="blue">
-              {tag.connection_status}
-            </Badge>
-          )}
-        </ModalHeader>
-        <ModalCloseButton />
+    <DialogRoot open={isOpen} onOpenChange={onClose} size="2xl">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {tag ? 'Edit Tag' : 'Add New Tag'}
+            {tag && (
+              <Badge ml={2} colorScheme="blue">
+                {tag.connection_status}
+              </Badge>
+            )}
+          </DialogTitle>
+          <DialogCloseTrigger />
+        </DialogHeader>
         
-        <ModalBody>
-          <Tabs>
-            <TabList>
-              <Tab>Basic</Tab>
-              <Tab>Data Source</Tab>
-              <Tab>Logging & Alarms</Tab>
-            </TabList>
+        <DialogBody>
+          <TabsRoot defaultValue="basic">
+            <TabsList>
+              <TabsTrigger value="basic">Basic</TabsTrigger>
+              <TabsTrigger value="datasource">Data Source</TabsTrigger>
+              <TabsTrigger value="logging">Logging & Alarms</TabsTrigger>
+            </TabsList>
             
-            <TabPanels>
-              <TabPanel>
-                <BasicTab formData={formData} setFormData={setFormData} />
-              </TabPanel>
-              
-              <TabPanel>
-                <DataSourceTab formData={formData} setFormData={setFormData} />
-              </TabPanel>
-              
-              <TabPanel>
-                <LoggingAlarmsTab formData={formData} setFormData={setFormData} />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </ModalBody>
+            <TabsContent value="basic">
+              <BasicTab formData={formData} setFormData={setFormData} />
+            </TabsContent>
+            
+            <TabsContent value="datasource">
+              <DataSourceTab formData={formData} setFormData={setFormData} />
+            </TabsContent>
+            
+            <TabsContent value="logging">
+              <LoggingAlarmsTab formData={formData} setFormData={setFormData} />
+            </TabsContent>
+          </TabsRoot>
+        </DialogBody>
 
-        <ModalFooter>
+        <DialogFooter>
           <Button variant="outline" mr={3} onClick={onClose} size="sm">
             Cancel
           </Button>
           <Button colorScheme="blue" onClick={handleSave} size="sm">
             {tag ? 'Update Tag' : 'Create Tag'}
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 };
 

@@ -1,19 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogTitle,
   VStack,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  useToast,
+  TabsRoot,
+  TabsList,
+  TabsContent,
+  TabsTrigger,
+  createToaster,
 } from '@chakra-ui/react';
 import { useDataSources } from '../hooks/useDataSources';
 import NewConnectionForm from './data-source/NewConnectionForm';
@@ -27,65 +26,65 @@ interface DataSourceModalProps {
   dataSource?: any;
 }
 
+const toaster = createToaster({
+  placement: 'top',
+});
+
 const DataSourceModal: React.FC<DataSourceModalProps> = ({
   isOpen,
   onClose,
   dataSource,
 }) => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('create');
   const [selectedConnection, setSelectedConnection] = useState<any>(null);
   const [connectionData, setConnectionData] = useState<Record<string, any>>({});
   const { dataSources, refetch } = useDataSources();
-  const toast = useToast();
 
   useEffect(() => {
     if (dataSource) {
-      setActiveTab(2);
+      setActiveTab('configure');
       setSelectedConnection(dataSource);
     } else {
-      setActiveTab(0);
+      setActiveTab('create');
       setSelectedConnection(null);
     }
   }, [dataSource]);
 
   const handleConnectionCreated = () => {
     refetch();
-    setActiveTab(1);
+    setActiveTab('select');
   };
 
   const handleConnectionSelect = (connection: any) => {
     setSelectedConnection(connection);
-    setActiveTab(2);
+    setActiveTab('configure');
   };
 
   const handleTestConnection = async (connection: any) => {
     try {
       const result = await testDataSourceConnection(connection.id);
       if (result.success) {
-        toast({
+        toaster.create({
           title: 'Connection Test Successful',
           description: 'The data source is working correctly',
           status: 'success',
           duration: 3000,
-          isClosable: true,
         });
         setConnectionData(result.data || {});
       } else {
-        toast({
+        toaster.create({
           title: 'Connection Test Failed',
           description: result.error || 'Unknown error occurred',
           status: 'error',
           duration: 5000,
-          isClosable: true,
         });
       }
     } catch (error) {
-      toast({
+      toaster.create({
         title: 'Connection Test Failed',
         description: 'Failed to test connection',
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     }
   };
@@ -97,51 +96,52 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="4xl">
-      <ModalOverlay />
-      <ModalContent maxH="90vh">
-        <ModalHeader>
-          {dataSource ? 'Edit Data Source' : 'Data Source Manager'}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
+    <DialogRoot open={isOpen} onOpenChange={handleClose} size="4xl">
+      <DialogContent maxH="90vh">
+        <DialogHeader>
+          <DialogTitle>
+            {dataSource ? 'Edit Data Source' : 'Data Source Manager'}
+          </DialogTitle>
+          <DialogCloseTrigger />
+        </DialogHeader>
+        <DialogBody pb={6}>
           <VStack gap={6} align="stretch">
-            <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
-              <TabList>
-                <Tab>Create Connection</Tab>
-                <Tab>Select Connection</Tab>
-                <Tab isDisabled={!selectedConnection}>Configure Data Source</Tab>
-              </TabList>
+            <TabsRoot value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="create">Create Connection</TabsTrigger>
+                <TabsTrigger value="select">Select Connection</TabsTrigger>
+                <TabsTrigger value="configure" disabled={!selectedConnection}>
+                  Configure Data Source
+                </TabsTrigger>
+              </TabsList>
 
-              <TabPanels>
-                <TabPanel>
-                  <NewConnectionForm onSuccess={handleConnectionCreated} />
-                </TabPanel>
+              <TabsContent value="create">
+                <NewConnectionForm onSuccess={handleConnectionCreated} />
+              </TabsContent>
 
-                <TabPanel>
-                  <ConnectionList
-                    connections={dataSources || []}
-                    onSelect={handleConnectionSelect}
-                    onTest={handleTestConnection}
+              <TabsContent value="select">
+                <ConnectionList
+                  connections={dataSources || []}
+                  onSelect={handleConnectionSelect}
+                  onTest={handleTestConnection}
+                  connectionData={connectionData}
+                />
+              </TabsContent>
+
+              <TabsContent value="configure">
+                {selectedConnection && (
+                  <DataSourceConfigForm
+                    connection={selectedConnection}
                     connectionData={connectionData}
+                    onClose={handleClose}
                   />
-                </TabPanel>
-
-                <TabPanel>
-                  {selectedConnection && (
-                    <DataSourceConfigForm
-                      connection={selectedConnection}
-                      connectionData={connectionData}
-                      onClose={handleClose}
-                    />
-                  )}
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
+                )}
+              </TabsContent>
+            </TabsRoot>
           </VStack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </DialogRoot>
   );
 };
 

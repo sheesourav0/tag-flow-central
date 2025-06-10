@@ -6,15 +6,16 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
+  NativeSelectRoot,
+  NativeSelectField,
   Button,
   Text,
   Box,
   Badge,
-  useToast,
   Textarea,
   Code,
   Heading,
+  createToaster,
 } from '@chakra-ui/react';
 import { useDataSources } from '../../hooks/useDataSources';
 
@@ -23,6 +24,10 @@ interface DataSourceConfigFormProps {
   connectionData: Record<string, any>;
   onClose: () => void;
 }
+
+const toaster = createToaster({
+  placement: 'top',
+});
 
 const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
   connection,
@@ -38,7 +43,6 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const { updateDataSource } = useDataSources();
-  const toast = useToast();
 
   useEffect(() => {
     if (connection.data_mapping) {
@@ -92,21 +96,19 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
         status: 'active',
       });
 
-      toast({
+      toaster.create({
         title: 'Data source configured successfully',
         status: 'success',
         duration: 3000,
-        isClosable: true,
       });
 
       onClose();
     } catch (error) {
-      toast({
+      toaster.create({
         title: 'Failed to configure data source',
         description: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     } finally {
       setLoading(false);
@@ -155,17 +157,19 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
 
         <FormControl>
           <FormLabel>Update Interval (seconds)</FormLabel>
-          <Select
-            value={config.updateInterval}
-            onChange={(e) => handleChange('updateInterval', e.target.value)}
-          >
-            <option value="10">10 seconds</option>
-            <option value="30">30 seconds</option>
-            <option value="60">1 minute</option>
-            <option value="300">5 minutes</option>
-            <option value="600">10 minutes</option>
-            <option value="3600">1 hour</option>
-          </Select>
+          <NativeSelectRoot>
+            <NativeSelectField
+              value={config.updateInterval}
+              onChange={(e) => handleChange('updateInterval', e.target.value)}
+            >
+              <option value="10">10 seconds</option>
+              <option value="30">30 seconds</option>
+              <option value="60">1 minute</option>
+              <option value="300">5 minutes</option>
+              <option value="600">10 minutes</option>
+              <option value="3600">1 hour</option>
+            </NativeSelectField>
+          </NativeSelectRoot>
         </FormControl>
 
         {sampleData && (
@@ -224,7 +228,7 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
           <Button
             type="submit"
             colorScheme="primary"
-            isLoading={loading}
+            loading={loading}
             loadingText="Saving..."
             size="lg"
           >

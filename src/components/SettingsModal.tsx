@@ -7,13 +7,13 @@ import {
   Text,
   Badge,
   Box,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogCloseTrigger,
+  DialogTitle,
   Switch,
 } from '@chakra-ui/react';
 import { useTagStore } from '../store/tagStore';
@@ -29,18 +29,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const visibleCount = columns.filter(col => col.visible).length;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          Column Settings
-          <Badge ml={2} colorScheme="blue">
-            {visibleCount}/{columns.length} visible
-          </Badge>
-        </ModalHeader>
-        <ModalCloseButton />
+    <DialogRoot open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            Column Settings
+            <Badge ml={2} colorScheme="blue">
+              {visibleCount}/{columns.length} visible
+            </Badge>
+          </DialogTitle>
+          <DialogCloseTrigger />
+        </DialogHeader>
         
-        <ModalBody>
+        <DialogBody>
           <VStack align="stretch" gap={3}>
             <Text fontSize="sm" color="gray.600">
               Configure which columns to display in the tag table.
@@ -59,21 +60,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </VStack>
                 <Switch
-                  isChecked={column.visible}
-                  onChange={() => toggleColumn(column.key)}
+                  checked={column.visible}
+                  onCheckedChange={() => toggleColumn(column.key)}
                 />
               </HStack>
             ))}
           </VStack>
-        </ModalBody>
+        </DialogBody>
 
-        <ModalFooter>
+        <DialogFooter>
           <Button colorScheme="blue" onClick={onClose} size="sm">
             Done
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 };
 

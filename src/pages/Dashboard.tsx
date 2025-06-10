@@ -6,52 +6,50 @@ import {
   Flex,
   Heading,
   Button,
-  useDisclosure,
   Grid,
   GridItem,
   Text,
   Badge,
   VStack,
   HStack,
-  Icon,
 } from '@chakra-ui/react';
-import { Plus, Database, Activity, AlertCircle } from 'lucide-react';
+import { MdAdd, MdStorage, MdTrendingUp, MdError } from 'react-icons/md';
 import { useDataSources } from '../hooks/useDataSources';
 import DataSourceModal from '../components/DataSourceModal';
 import DataSourceCard from '../components/DataSourceCard';
 
 const Dashboard: React.FC = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { dataSources, isLoading } = useDataSources();
   const [editingDataSource, setEditingDataSource] = useState(null);
 
   const handleEdit = (dataSource: any) => {
     setEditingDataSource(dataSource);
-    onOpen();
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setEditingDataSource(null);
-    onClose();
+    setIsModalOpen(false);
   };
 
   const stats = [
     {
       label: 'Total Data Sources',
       value: dataSources?.length || 0,
-      icon: Database,
+      icon: MdStorage,
       color: 'blue',
     },
     {
       label: 'Active Connections',
       value: dataSources?.filter(ds => ds.status === 'active').length || 0,
-      icon: Activity,
+      icon: MdTrendingUp,
       color: 'green',
     },
     {
       label: 'Failed Connections',
       value: dataSources?.filter(ds => ds.status === 'error').length || 0,
-      icon: AlertCircle,
+      icon: MdError,
       color: 'red',
     },
   ];
@@ -59,7 +57,7 @@ const Dashboard: React.FC = () => {
   return (
     <Container maxW="7xl" py={8}>
       <Flex justify="space-between" align="center" mb={8}>
-        <VStack align="start" spacing={2}>
+        <VStack align="start" gap={2}>
           <Heading size="lg" color="gray.800">
             Data Source Manager
           </Heading>
@@ -68,11 +66,10 @@ const Dashboard: React.FC = () => {
           </Text>
         </VStack>
         <Button
-          leftIcon={<Icon as={Plus} />}
-          colorScheme="primary"
-          onClick={onOpen}
+          onClick={() => setIsModalOpen(true)}
           size="lg"
         >
+          <MdAdd size={20} style={{ marginRight: '8px' }} />
           Add Data Source
         </Button>
       </Flex>
@@ -88,15 +85,15 @@ const Dashboard: React.FC = () => {
               border="1px"
               borderColor="gray.200"
             >
-              <HStack spacing={4}>
+              <HStack gap={4}>
                 <Box
                   p={3}
                   bg={`${stat.color}.100`}
                   borderRadius="lg"
                 >
-                  <Icon as={stat.icon} color={`${stat.color}.500`} boxSize={6} />
+                  <stat.icon color={`${stat.color}.500`} size={24} />
                 </Box>
-                <VStack align="start" spacing={1}>
+                <VStack align="start" gap={1}>
                   <Text fontSize="2xl" fontWeight="bold" color="gray.800">
                     {stat.value}
                   </Text>
@@ -135,14 +132,14 @@ const Dashboard: React.FC = () => {
             border="1px"
             borderColor="gray.200"
           >
-            <Icon as={Database} boxSize={12} color="gray.400" mb={4} />
+            <MdStorage size={48} color="gray" style={{ margin: '0 auto 16px' }} />
             <Heading size="md" color="gray.600" mb={2}>
               No data sources found
             </Heading>
             <Text color="gray.500" mb={4}>
               Get started by creating your first data source connection
             </Text>
-            <Button colorScheme="primary" onClick={onOpen}>
+            <Button onClick={() => setIsModalOpen(true)}>
               Create Data Source
             </Button>
           </Box>
@@ -150,7 +147,7 @@ const Dashboard: React.FC = () => {
       </Box>
 
       <DataSourceModal
-        isOpen={isOpen}
+        isOpen={isModalOpen}
         onClose={handleCloseModal}
         dataSource={editingDataSource}
       />

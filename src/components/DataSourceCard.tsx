@@ -8,14 +8,13 @@ import {
   Badge,
   Button,
   IconButton,
-  useDisclosure,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
+  MenuContent,
   MenuItem,
+  MenuRoot,
+  MenuTrigger,
+  createToaster,
 } from '@chakra-ui/react';
-import { Database, Globe, Wifi, MoreVertical, Edit, Trash2, Play } from 'lucide-react';
+import { MdStorage, MdLanguage, MdWifi, MdMoreVert, MdEdit, MdDelete, MdPlayArrow } from 'react-icons/md';
 import { DataSource } from '../types/dataSource';
 import { useDataSources } from '../hooks/useDataSources';
 
@@ -24,20 +23,23 @@ interface DataSourceCardProps {
   onEdit: (dataSource: DataSource) => void;
 }
 
+const toaster = createToaster({
+  placement: 'top',
+});
+
 const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) => {
   const { deleteDataSource } = useDataSources();
-  const toast = useToast();
 
   const getIcon = () => {
     switch (dataSource.type) {
       case 'rest_api':
-        return Globe;
+        return MdLanguage;
       case 'websocket':
-        return Wifi;
+        return MdWifi;
       case 'mqtt':
-        return Database;
+        return MdStorage;
       default:
-        return Database;
+        return MdStorage;
     }
   };
 
@@ -57,18 +59,16 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
   const handleDelete = async () => {
     try {
       await deleteDataSource(dataSource.id);
-      toast({
+      toaster.create({
         title: 'Data source deleted',
         status: 'success',
         duration: 3000,
-        isClosable: true,
       });
     } catch (error) {
-      toast({
+      toaster.create({
         title: 'Failed to delete data source',
         status: 'error',
         duration: 3000,
-        isClosable: true,
       });
     }
   };
@@ -105,31 +105,34 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
               </Text>
             </VStack>
           </HStack>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              icon={<MoreVertical size={16} />}
-              variant="ghost"
-              size="sm"
-            />
-            <MenuList>
-              <MenuItem onClick={() => onEdit(dataSource)}>
-                <Edit size={16} style={{ marginRight: '8px' }} />
+          <MenuRoot>
+            <MenuTrigger asChild>
+              <IconButton
+                variant="ghost"
+                size="sm"
+              >
+                <MdMoreVert size={16} />
+              </IconButton>
+            </MenuTrigger>
+            <MenuContent>
+              <MenuItem value="edit" onClick={() => onEdit(dataSource)}>
+                <MdEdit size={16} style={{ marginRight: '8px' }} />
                 Edit
               </MenuItem>
-              <MenuItem>
-                <Play size={16} style={{ marginRight: '8px' }} />
+              <MenuItem value="test">
+                <MdPlayArrow size={16} style={{ marginRight: '8px' }} />
                 Test Connection
               </MenuItem>
               <MenuItem 
+                value="delete"
                 color="red.500"
                 onClick={handleDelete}
               >
-                <Trash2 size={16} style={{ marginRight: '8px' }} />
+                <MdDelete size={16} style={{ marginRight: '8px' }} />
                 Delete
               </MenuItem>
-            </MenuList>
-          </Menu>
+            </MenuContent>
+          </MenuRoot>
         </HStack>
 
         <HStack justify="space-between">
@@ -142,7 +145,7 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
         </HStack>
 
         {dataSource.description && (
-          <Text fontSize="sm" color="gray.600" noOfLines={2}>
+          <Text fontSize="sm" color="gray.600" lineClamp={2}>
             {dataSource.description}
           </Text>
         )}
@@ -152,7 +155,7 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
           variant="outline"
           onClick={() => onEdit(dataSource)}
         >
-          <Edit size={16} style={{ marginRight: '8px' }} />
+          <MdEdit size={16} style={{ marginRight: '8px' }} />
           Configure
         </Button>
       </VStack>
