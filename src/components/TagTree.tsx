@@ -7,7 +7,7 @@ import {
   Text,
   Button,
 } from '@chakra-ui/react';
-import { MdAdd } from 'react-icons/md';
+import { AddIcon } from '@chakra-ui/icons';
 import { useGroups } from '../hooks/useGroups';
 import GroupItem from './tag-tree/GroupItem';
 
@@ -26,7 +26,7 @@ const TagTree = () => {
 
   return (
     <Box h="100%" p={4} overflowY="auto">
-      <VStack align="stretch" gap={2}>
+      <VStack align="stretch" spacing={2}>
         <Box border="1px" borderColor="gray.200" borderRadius="md">
           <Box py={3} px={4}>
             <HStack justify="space-between">
@@ -37,8 +37,8 @@ const TagTree = () => {
                 size="xs"
                 colorScheme="brand"
                 onClick={handleAddGroup}
+                leftIcon={<AddIcon />}
               >
-                <MdAdd size={16} style={{ marginRight: '4px' }} />
                 Add Group
               </Button>
             </HStack>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
   Box,
   Flex,
+  useDisclosure,
 } from '@chakra-ui/react';
 import TagTable from './TagTable';
 import TagTree from './TagTree';
@@ -36,19 +37,19 @@ const TagFlowCentral = () => {
     clearSelection
   } = useTagStore();
 
-  const [tagModalOpen, setTagModalOpen] = useState(false);
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [dataSourceModalOpen, setDataSourceModalOpen] = useState(false);
+  const tagModalDisclosure = useDisclosure();
+  const settingsModalDisclosure = useDisclosure();
+  const dataSourceModalDisclosure = useDisclosure();
   const [editingTag, setEditingTag] = useState<DatabaseTag | null>(null);
 
   const handleAddTag = () => {
     setEditingTag(null);
-    setTagModalOpen(true);
+    tagModalDisclosure.onOpen();
   };
 
   const handleEditTag = (tag: DatabaseTag) => {
     setEditingTag(tag);
-    setTagModalOpen(true);
+    tagModalDisclosure.onOpen();
   };
 
   const handleDeleteSelected = () => {
@@ -80,8 +81,8 @@ const TagFlowCentral = () => {
         groups={groups}
         onAddTag={handleAddTag}
         onDeleteSelected={handleDeleteSelected}
-        onDataSources={() => setDataSourceModalOpen(true)}
-        onSettings={() => setSettingsModalOpen(true)}
+        onDataSources={dataSourceModalDisclosure.onOpen}
+        onSettings={settingsModalDisclosure.onOpen}
         onSearchChange={setSearchTerm}
         onFilterTypeChange={setFilterType}
         onFilterGroupChange={setFilterGroup}
@@ -102,19 +103,19 @@ const TagFlowCentral = () => {
 
       {/* Modals */}
       <TagModal
-        isOpen={tagModalOpen}
-        onClose={() => setTagModalOpen(false)}
+        isOpen={tagModalDisclosure.isOpen}
+        onClose={tagModalDisclosure.onClose}
         tag={editingTag}
       />
 
       <SettingsModal
-        isOpen={settingsModalOpen}
-        onClose={() => setSettingsModalOpen(false)}
+        isOpen={settingsModalDisclosure.isOpen}
+        onClose={settingsModalDisclosure.onClose}
       />
 
       <DataSourceModal
-        isOpen={dataSourceModalOpen}
-        onClose={() => setDataSourceModalOpen(false)}
+        isOpen={dataSourceModalDisclosure.isOpen}
+        onClose={dataSourceModalDisclosure.onClose}
       />
     </Box>
   );

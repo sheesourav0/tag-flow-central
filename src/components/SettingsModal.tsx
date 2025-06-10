@@ -7,15 +7,15 @@ import {
   Text,
   Badge,
   Box,
-  DialogRoot,
-  DialogContent,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  DialogCloseTrigger,
-  DialogTitle,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Switch,
 } from '@chakra-ui/react';
-import { Switch } from '@chakra-ui/react';
 import { useTagStore } from '../store/tagStore';
 
 interface SettingsModalProps {
@@ -29,20 +29,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const visibleCount = columns.filter(col => col.visible).length;
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            Column Settings
-            <Badge ml={2} colorScheme="blue">
-              {visibleCount}/{columns.length} visible
-            </Badge>
-          </DialogTitle>
-          <DialogCloseTrigger />
-        </DialogHeader>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          Column Settings
+          <Badge ml={2} colorScheme="blue">
+            {visibleCount}/{columns.length} visible
+          </Badge>
+        </ModalHeader>
+        <ModalCloseButton />
         
-        <DialogBody>
-          <VStack align="stretch" gap={3}>
+        <ModalBody>
+          <VStack align="stretch" spacing={3}>
             <Text fontSize="sm" color="gray.600">
               Configure which columns to display in the tag table.
             </Text>
@@ -51,7 +50,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             
             {columns.map((column) => (
               <HStack key={column.key} justify="space-between" p={2} borderRadius="md" _hover={{ bg: 'gray.50' }}>
-                <VStack align="start" gap={0}>
+                <VStack align="start" spacing={0}>
                   <Text fontSize="sm" fontWeight="medium">
                     {column.label}
                   </Text>
@@ -59,24 +58,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     Width: {column.width}px
                   </Text>
                 </VStack>
-                <Switch.Root
-                  checked={column.visible}
-                  onCheckedChange={() => toggleColumn(column.key)}
-                >
-                  <Switch.Thumb />
-                </Switch.Root>
+                <Switch
+                  isChecked={column.visible}
+                  onChange={() => toggleColumn(column.key)}
+                />
               </HStack>
             ))}
           </VStack>
-        </DialogBody>
+        </ModalBody>
 
-        <DialogFooter>
+        <ModalFooter>
           <Button colorScheme="blue" onClick={onClose} size="sm">
             Done
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </DialogRoot>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

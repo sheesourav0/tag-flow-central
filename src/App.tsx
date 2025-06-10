@@ -1,29 +1,27 @@
-
-import React from 'react';
-import { ChakraProvider, Box, createSystem, defaultConfig } from '@chakra-ui/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import { Toaster } from './components/ui/toaster';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-const system = createSystem(defaultConfig);
 
-function App() {
-  return (
-    <ChakraProvider value={system}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Box minH="100vh" bg="gray.50">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-            </Routes>
-            <Toaster />
-          </Box>
-        </Router>
-      </QueryClientProvider>
-    </ChakraProvider>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

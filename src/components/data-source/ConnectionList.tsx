@@ -5,117 +5,168 @@ import {
   HStack,
   Box,
   Text,
-  Button,
   Badge,
+  IconButton,
+  Button,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from '@chakra-ui/react';
-import { MdStorage, MdLanguage, MdWifi, MdPlayArrow } from 'react-icons/md';
+import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { DataSource, useDataSources } from '../../hooks/useDataSources';
 
 interface ConnectionListProps {
-  connections: any[];
-  onSelect: (connection: any) => void;
-  onTest: (connection: any) => void;
-  connectionData: any;
+  connections: DataSource[];
+  onTest: (connection: DataSource) => void;
+  connectionData: Record<string, any>;
 }
 
-const ConnectionList: React.FC<ConnectionListProps> = ({
-  connections,
-  onSelect,
-  onTest,
-  connectionData,
-}) => {
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'rest_api':
-        return MdLanguage;
-      case 'websocket':
-        return MdWifi;
-      case 'mqtt':
-        return MdStorage;
-      default:
-        return MdStorage;
-    }
-  };
+const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest, connectionData }) => {
+  const { deleteDataSource, isLoading } = useDataSources();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [deleteId, setDeleteId] = React.useState<string>('');
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'green';
-      case 'inactive':
-        return 'yellow';
-      case 'error':
-        return 'red';
-      default:
-        return 'gray';
+      case 'Connected': return 'green';
+      case 'Disconnected': return 'red';
+      case 'Connecting': return 'yellow';
+      case 'Error': return 'red';
+      default: return 'gray';
     }
   };
 
-  if (connections.length === 0) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Text color="gray.500">No connections available</Text>
-        <Text color="gray.400" fontSize="sm" mt={2}>
-          Create a connection first to proceed
-        </Text>
-      </Box>
-    );
-  }
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+    onOpen();
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId) {
+      await deleteDataSource(deleteId);
+      setDeleteId('');
+      onClose();
+    }
+  };
 
   return (
-    <VStack gap={3} align="stretch">
-      {connections.map((connection) => {
-        const IconComponent = getIcon(connection.type);
+    <>
+      <VStack align="stretch" spacing={4}>
+        <Text fontSize="sm" color="gray.600">
+          Manage active data source connections for your tags.
+        </Text>
         
-        return (
-          <Box
-            key={connection.id}
-            p={4}
-            border="1px"
-            borderColor="gray.200"
-            borderRadius="md"
-            _hover={{ shadow: 'sm' }}
-          >
-            <HStack justify="space-between">
-              <HStack gap={3}>
-                <IconComponent size={20} />
-                <VStack align="start" gap={0}>
-                  <Text fontWeight="medium">{connection.name}</Text>
-                  <Text fontSize="sm" color="gray.500">
-                    {connection.type.replace('_', ' ').toUpperCase()}
-                  </Text>
-                </VStack>
-                <Badge colorScheme={getStatusColor(connection.status)}>
-                  {connection.status}
-                </Badge>
-              </HStack>
-              
-              <HStack gap={2}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onTest(connection)}
-                >
-                  <MdPlayArrow size={16} style={{ marginRight: '4px' }} />
-                  Test
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() => onSelect(connection)}
-                >
-                  Select
-                </Button>
-              </HStack>
-            </HStack>
-
-            {connection.description && (
-              <Text fontSize="sm" color="gray.600" mt={2}>
-                {connection.description}
-              </Text>
-            )}
+        {connections.length === 0 ? (
+          <Box p={8} textAlign="center" borderRadius="md" border="1px dashed" borderColor="gray.300">
+            <Text color="gray.500" mb={2}>No data sources configured</Text>
+            <Text fontSize="sm" color="gray.400">
+              Add your first data source to start collecting data
+            </Text>
           </Box>
-        );
-      })}
-    </VStack>
+        ) : (
+          connections.map((connection) => (
+            <Box key={connection.id} p={4} border="1px" borderColor="gray.200" borderRadius="md">
+              <HStack justify="space-between" align="start">
+                <VStack align="start" spacing={2}>
+                  <HStack spacing={2}>
+                    <Text fontWeight="semibold">{connection.name}</Text>
+                    <Badge colorScheme={getStatusColor(connection.status)}>
+                      {connection.status}
+                    </Badge>
+                    <Badge variant="outline">{connection.type}</Badge>
+                  </HStack>
+                  <Text fontSize="xs" fontFamily="mono" bg="gray.100" p={1} borderRadius="md">
+                    {connection.endpoint}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Last Update: {connection.last_update 
+                      ? new Date(connection.last_update).toLocaleString()
+                      : 'Never'
+                    }
+                  </Text>
+                  {connectionData[connection.id] && (
+                    <Box>
+                      <Text fontSize="xs" color="gray.600" fontWeight="medium">Sample Data:</Text>
+                      <Box fontSize="xs" fontFamily="mono" bg="gray.50" p={2} borderRadius="md" maxH="100px" overflow="auto">
+                        <pre>{JSON.stringify(connectionData[connection.id], null, 2)}</pre>
+                      </Box>
+                    </Box>
+                  )}
+                </VStack>
+                
+                <HStack spacing={2}>
+                  <Button
+                    size="xs"
+                    colorScheme="blue"
+                    onClick={() => onTest(connection)}
+                    isLoading={isLoading && connection.status === 'Connecting'}
+                    loadingText="Testing..."
+                  >
+                    Test
+                  </Button>
+                  <IconButton
+                    aria-label="Edit connection"
+                    size="xs"
+                    variant="ghost"
+                    icon={<EditIcon />}
+                    onClick={() => {
+                      // TODO: Implement edit functionality
+                      console.log('Edit connection:', connection.id);
+                    }}
+                  />
+                  <IconButton
+                    aria-label="Delete connection"
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="red"
+                    icon={<DeleteIcon />}
+                    onClick={() => handleDelete(connection.id)}
+                  />
+                </HStack>
+              </HStack>
+            </Box>
+          ))
+        )}
+      </VStack>
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Data Source
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this data source? This action cannot be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose} size="sm">
+                Cancel
+              </Button>
+              <Button 
+                colorScheme="red" 
+                onClick={confirmDelete} 
+                ml={3} 
+                size="sm"
+                isLoading={isLoading}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
   );
 };
 
