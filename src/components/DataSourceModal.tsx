@@ -1,110 +1,145 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Button,
-  HStack,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
-  ModalBody,
   ModalCloseButton,
-  Text,
-  Badge,
+  ModalBody,
   VStack,
-  Box,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  useToast,
 } from '@chakra-ui/react';
-import ConnectionList from './data-source/ConnectionList';
-import NewConnectionForm from './data-source/NewConnectionForm';
 import { useDataSources } from '../hooks/useDataSources';
+import NewConnectionForm from './data-source/NewConnectionForm';
+import ConnectionList from './data-source/ConnectionList';
+import DataSourceConfigForm from './data-source/DataSourceConfigForm';
+import { testDataSourceConnection } from '../services/dataSourceService';
 
 interface DataSourceModalProps {
   isOpen: boolean;
   onClose: () => void;
+  dataSource?: any;
 }
 
-const DataSourceModal: React.FC<DataSourceModalProps> = ({ isOpen, onClose }) => {
-  const { dataSources, testConnection, connectionData } = useDataSources();
-  const [activeTab, setActiveTab] = useState('connections');
+const DataSourceModal: React.FC<DataSourceModalProps> = ({
+  isOpen,
+  onClose,
+  dataSource,
+}) => {
+  const [activeTab, setActiveTab] = useState(0);
+  const [selectedConnection, setSelectedConnection] = useState<any>(null);
+  const [connectionData, setConnectionData] = useState<Record<string, any>>({});
+  const { dataSources, refetch } = useDataSources();
+  const toast = useToast();
 
-  const handleTestConnection = (connection: any) => {
-    testConnection(connection);
+  useEffect(() => {
+    if (dataSource) {
+      setActiveTab(2);
+      setSelectedConnection(dataSource);
+    } else {
+      setActiveTab(0);
+      setSelectedConnection(null);
+    }
+  }, [dataSource]);
+
+  const handleConnectionCreated = () => {
+    refetch();
+    setActiveTab(1);
   };
 
-  const handleConnectionAdded = () => {
-    // Switch to connections tab to show the new connection
-    setActiveTab('connections');
+  const handleConnectionSelect = (connection: any) => {
+    setSelectedConnection(connection);
+    setActiveTab(2);
   };
 
-  const connectedCount = dataSources.filter(ds => ds.status === 'Connected').length;
-  const errorCount = dataSources.filter(ds => ds.status === 'Error').length;
+  const handleTestConnection = async (connection: any) => {
+    try {
+      const result = await testDataSourceConnection(connection.id);
+      if (result.success) {
+        toast({
+          title: 'Connection Test Successful',
+          description: 'The data source is working correctly',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        setConnectionData(result.data || {});
+      } else {
+        toast({
+          title: 'Connection Test Failed',
+          description: result.error || 'Unknown error occurred',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Connection Test Failed',
+        description: 'Failed to test connection',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedConnection(null);
+    setConnectionData({});
+    onClose();
+  };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="6xl">
+    <Modal isOpen={isOpen} onClose={handleClose} size="4xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxH="90vh">
         <ModalHeader>
-          <VStack align="start" spacing={2}>
-            <Text>Data Source Connections</Text>
-            <HStack spacing={4}>
-              <HStack spacing={1}>
-                <Badge colorScheme="green">{connectedCount}</Badge>
-                <Text fontSize="sm" color="gray.600">Connected</Text>
-              </HStack>
-              <HStack spacing={1}>
-                <Badge colorScheme="red">{errorCount}</Badge>
-                <Text fontSize="sm" color="gray.600">Error</Text>
-              </HStack>
-              <HStack spacing={1}>
-                <Badge>{dataSources.length}</Badge>
-                <Text fontSize="sm" color="gray.600">Total</Text>
-              </HStack>
-            </HStack>
-          </VStack>
+          {dataSource ? 'Edit Data Source' : 'Data Source Manager'}
         </ModalHeader>
         <ModalCloseButton />
-        
-        <ModalBody>
-          {/* Tab Navigation */}
-          <HStack mb={4} borderBottom="1px" borderColor="gray.200">
-            <Button
-              variant={activeTab === 'connections' ? 'solid' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('connections')}
-            >
-              Active Connections ({dataSources.length})
-            </Button>
-            <Button
-              variant={activeTab === 'new' ? 'solid' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('new')}
-            >
-              Add New Connection
-            </Button>
-          </HStack>
-          
-          {/* Tab Content */}
-          {activeTab === 'connections' && (
-            <Box>
-              <ConnectionList 
-                connections={dataSources} 
-                onTest={handleTestConnection}
-                connectionData={connectionData}
-              />
-            </Box>
-          )}
-          
-          {activeTab === 'new' && (
-            <NewConnectionForm onSuccess={handleConnectionAdded} />
-          )}
-        </ModalBody>
+        <ModalBody pb={6}>
+          <VStack spacing={6} align="stretch">
+            <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
+              <TabList>
+                <Tab>Create Connection</Tab>
+                <Tab>Select Connection</Tab>
+                <Tab isDisabled={!selectedConnection}>Configure Data Source</Tab>
+              </TabList>
 
-        <ModalFooter>
-          <Button colorScheme="blue" onClick={onClose} size="sm">
-            Close
-          </Button>
-        </ModalFooter>
+              <TabPanels>
+                <TabPanel>
+                  <NewConnectionForm onSuccess={handleConnectionCreated} />
+                </TabPanel>
+
+                <TabPanel>
+                  <ConnectionList
+                    connections={dataSources || []}
+                    onSelect={handleConnectionSelect}
+                    onTest={handleTestConnection}
+                    connectionData={connectionData}
+                  />
+                </TabPanel>
+
+                <TabPanel>
+                  {selectedConnection && (
+                    <DataSourceConfigForm
+                      connection={selectedConnection}
+                      connectionData={connectionData}
+                      onClose={handleClose}
+                    />
+                  )}
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </VStack>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );

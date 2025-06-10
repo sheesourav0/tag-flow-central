@@ -5,168 +5,157 @@ import {
   HStack,
   Box,
   Text,
-  Badge,
-  IconButton,
   Button,
-  useDisclosure,
-  AlertDialog,
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogBody,
-  AlertDialogFooter,
+  Badge,
+  Icon,
+  SimpleGrid,
+  Heading,
 } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { DataSource, useDataSources } from '../../hooks/useDataSources';
+import { Database, Globe, Wifi, Play } from 'lucide-react';
+import { DataSource } from '../../types/dataSource';
 
 interface ConnectionListProps {
   connections: DataSource[];
+  onSelect: (connection: DataSource) => void;
   onTest: (connection: DataSource) => void;
   connectionData: Record<string, any>;
 }
 
-const ConnectionList: React.FC<ConnectionListProps> = ({ connections, onTest, connectionData }) => {
-  const { deleteDataSource, isLoading } = useDataSources();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [deleteId, setDeleteId] = React.useState<string>('');
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
+const ConnectionList: React.FC<ConnectionListProps> = ({
+  connections,
+  onSelect,
+  onTest,
+  connectionData,
+}) => {
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'rest_api':
+        return Globe;
+      case 'websocket':
+        return Wifi;
+      case 'mqtt':
+        return Database;
+      default:
+        return Database;
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Connected': return 'green';
-      case 'Disconnected': return 'red';
-      case 'Connecting': return 'yellow';
-      case 'Error': return 'red';
-      default: return 'gray';
+      case 'active':
+        return 'green';
+      case 'inactive':
+        return 'yellow';
+      case 'error':
+        return 'red';
+      default:
+        return 'gray';
     }
   };
 
-  const handleDelete = (id: string) => {
-    setDeleteId(id);
-    onOpen();
-  };
-
-  const confirmDelete = async () => {
-    if (deleteId) {
-      await deleteDataSource(deleteId);
-      setDeleteId('');
-      onClose();
-    }
-  };
+  if (connections.length === 0) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Icon as={Database} boxSize={12} color="gray.400" mb={4} />
+        <Heading size="md" color="gray.600" mb={2}>
+          No connections available
+        </Heading>
+        <Text color="gray.500">
+          Create a connection first to proceed with data source configuration
+        </Text>
+      </Box>
+    );
+  }
 
   return (
-    <>
-      <VStack align="stretch" spacing={4}>
-        <Text fontSize="sm" color="gray.600">
-          Manage active data source connections for your tags.
-        </Text>
-        
-        {connections.length === 0 ? (
-          <Box p={8} textAlign="center" borderRadius="md" border="1px dashed" borderColor="gray.300">
-            <Text color="gray.500" mb={2}>No data sources configured</Text>
-            <Text fontSize="sm" color="gray.400">
-              Add your first data source to start collecting data
-            </Text>
-          </Box>
-        ) : (
-          connections.map((connection) => (
-            <Box key={connection.id} p={4} border="1px" borderColor="gray.200" borderRadius="md">
-              <HStack justify="space-between" align="start">
-                <VStack align="start" spacing={2}>
-                  <HStack spacing={2}>
-                    <Text fontWeight="semibold">{connection.name}</Text>
-                    <Badge colorScheme={getStatusColor(connection.status)}>
-                      {connection.status}
-                    </Badge>
-                    <Badge variant="outline">{connection.type}</Badge>
-                  </HStack>
-                  <Text fontSize="xs" fontFamily="mono" bg="gray.100" p={1} borderRadius="md">
-                    {connection.endpoint}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500">
-                    Last Update: {connection.last_update 
-                      ? new Date(connection.last_update).toLocaleString()
-                      : 'Never'
-                    }
-                  </Text>
-                  {connectionData[connection.id] && (
-                    <Box>
-                      <Text fontSize="xs" color="gray.600" fontWeight="medium">Sample Data:</Text>
-                      <Box fontSize="xs" fontFamily="mono" bg="gray.50" p={2} borderRadius="md" maxH="100px" overflow="auto">
-                        <pre>{JSON.stringify(connectionData[connection.id], null, 2)}</pre>
-                      </Box>
-                    </Box>
-                  )}
-                </VStack>
-                
-                <HStack spacing={2}>
-                  <Button
-                    size="xs"
-                    colorScheme="blue"
-                    onClick={() => onTest(connection)}
-                    isLoading={isLoading && connection.status === 'Connecting'}
-                    loadingText="Testing..."
+    <VStack spacing={6} align="stretch">
+      <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+        Select a Connection
+      </Text>
+
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        {connections.map((connection) => (
+          <Box
+            key={connection.id}
+            p={6}
+            bg="white"
+            borderRadius="lg"
+            border="1px"
+            borderColor="gray.200"
+            _hover={{ borderColor: 'primary.300', shadow: 'md' }}
+            transition="all 0.2s"
+            cursor="pointer"
+            onClick={() => onSelect(connection)}
+          >
+            <VStack align="stretch" spacing={4}>
+              <HStack justify="space-between">
+                <HStack spacing={3}>
+                  <Box
+                    p={2}
+                    bg="blue.100"
+                    borderRadius="md"
                   >
-                    Test
-                  </Button>
-                  <IconButton
-                    aria-label="Edit connection"
-                    size="xs"
-                    variant="ghost"
-                    icon={<EditIcon />}
-                    onClick={() => {
-                      // TODO: Implement edit functionality
-                      console.log('Edit connection:', connection.id);
-                    }}
-                  />
-                  <IconButton
-                    aria-label="Delete connection"
-                    size="xs"
-                    variant="ghost"
-                    colorScheme="red"
-                    icon={<DeleteIcon />}
-                    onClick={() => handleDelete(connection.id)}
-                  />
+                    <Icon as={getIcon(connection.type)} color="blue.500" boxSize={5} />
+                  </Box>
+                  <VStack align="start" spacing={0}>
+                    <Text fontWeight="semibold" color="gray.800">
+                      {connection.name}
+                    </Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {connection.type.replace('_', ' ').toUpperCase()}
+                    </Text>
+                  </VStack>
                 </HStack>
+                <Badge colorScheme={getStatusColor(connection.status)} size="sm">
+                  {connection.status}
+                </Badge>
               </HStack>
-            </Box>
-          ))
-        )}
-      </VStack>
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Data Source
-            </AlertDialogHeader>
+              {connection.description && (
+                <Text fontSize="sm" color="gray.600" noOfLines={2}>
+                  {connection.description}
+                </Text>
+              )}
 
-            <AlertDialogBody>
-              Are you sure you want to delete this data source? This action cannot be undone.
-            </AlertDialogBody>
+              <HStack spacing={2}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  leftIcon={<Icon as={Play} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTest(connection);
+                  }}
+                >
+                  Test
+                </Button>
+                <Button
+                  size="sm"
+                  colorScheme="primary"
+                  onClick={() => onSelect(connection)}
+                >
+                  Select
+                </Button>
+              </HStack>
 
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} size="sm">
-                Cancel
-              </Button>
-              <Button 
-                colorScheme="red" 
-                onClick={confirmDelete} 
-                ml={3} 
-                size="sm"
-                isLoading={isLoading}
-              >
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </>
+              {connectionData[connection.id] && (
+                <Box
+                  p={3}
+                  bg="green.50"
+                  borderRadius="md"
+                  border="1px"
+                  borderColor="green.200"
+                >
+                  <Text fontSize="xs" color="green.700" fontWeight="medium">
+                    ✓ Connection tested successfully
+                  </Text>
+                </Box>
+              )}
+            </VStack>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </VStack>
   );
 };
 

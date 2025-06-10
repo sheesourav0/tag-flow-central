@@ -3,209 +3,315 @@ import React, { useState } from 'react';
 import {
   VStack,
   HStack,
-  Box,
-  Text,
-  Input,
-  Button,
-  Alert,
-  AlertIcon,
   FormControl,
   FormLabel,
-  FormErrorMessage,
+  Input,
+  Select,
+  Textarea,
+  Button,
+  useToast,
+  Box,
+  Text,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
-import { useDataSources, DataSource } from '../../hooks/useDataSources';
-import { DataSourceConfig } from '../../services/dataSourceService';
-import ClickableTooltip from '../ui/clickable-tooltip';
-import DataSourceConfigForm from './DataSourceConfigForm';
+import { useDataSources } from '../../hooks/useDataSources';
 
 interface NewConnectionFormProps {
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
-  const { addDataSource, isLoading } = useDataSources();
-  const [formData, setFormData] = useState<{
-    name: string;
-    type: DataSource['type'];
-    endpoint: string;
-    config: DataSourceConfig;
-  }>({
+  const [formData, setFormData] = useState({
     name: '',
-    type: 'OPC UA',
-    endpoint: '',
-    config: {},
+    type: 'rest_api' as const,
+    description: '',
+    url: '',
+    method: 'GET',
+    headers: '',
+    authType: 'none',
+    authToken: '',
+    broker: '',
+    port: '',
+    topic: '',
+    qos: '0',
+    username: '',
+    password: '',
   });
-  const [errors, setErrors] = useState<string[]>([]);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { createDataSource } = useDataSources();
+  const toast = useToast();
+
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors([]);
-    setSuccessMessage('');
+    setLoading(true);
 
-    const result = await addDataSource(formData);
-    
-    if (result.success) {
-      setSuccessMessage('Connection added successfully!');
-      setFormData({ 
-        name: '', 
-        type: 'OPC UA', 
-        endpoint: '', 
-        config: {} 
+    try {
+      let config: any = {};
+
+      if (formData.type === 'rest_api') {
+        config = {
+          url: formData.url,
+          method: formData.method,
+          headers: formData.headers ? JSON.parse(formData.headers) : {},
+          authType: formData.authType,
+          authToken: formData.authToken,
+        };
+      } else if (formData.type === 'websocket') {
+        config = {
+          url: formData.url,
+        };
+      } else if (formData.type === 'mqtt') {
+        config = {
+          broker: formData.broker,
+          port: parseInt(formData.port) || 1883,
+          topic: formData.topic,
+          qos: parseInt(formData.qos) || 0,
+          username: formData.username,
+          password: formData.password,
+        };
+      }
+
+      await createDataSource({
+        name: formData.name,
+        type: formData.type,
+        description: formData.description,
+        config,
+        status: 'inactive',
       });
-      onSuccess?.();
-    } else {
-      setErrors(result.errors);
+
+      toast({
+        title: 'Connection created successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      onSuccess();
+    } catch (error) {
+      toast({
+        title: 'Failed to create connection',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getEndpointPlaceholder = () => {
+  const renderConfigFields = () => {
     switch (formData.type) {
-      case 'OPC UA':
-        return 'opc.tcp://192.168.1.100:4840';
-      case 'MQTT':
-        return 'mqtt://broker.local:1883';
-      case 'HTTPS':
-        return 'https://api.example.com/v1/data';
-      case 'Modbus':
-        return '192.168.1.100:502';
-      case 'S7':
-        return '192.168.1.100:102';
-      default:
-        return '';
-    }
-  };
+      case 'rest_api':
+        return (
+          <>
+            <FormControl isRequired>
+              <FormLabel>API URL</FormLabel>
+              <Input
+                value={formData.url}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://api.example.com/data"
+              />
+            </FormControl>
 
-  const handleConfigChange = (config: DataSourceConfig) => {
-    setFormData(prev => ({ ...prev, config }));
+            <FormControl>
+              <FormLabel>HTTP Method</FormLabel>
+              <Select
+                value={formData.method}
+                onChange={(e) => handleChange('method', e.target.value)}
+              >
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Headers (JSON)</FormLabel>
+              <Textarea
+                value={formData.headers}
+                onChange={(e) => handleChange('headers', e.target.value)}
+                placeholder='{"Content-Type": "application/json"}'
+                rows={3}
+              />
+            </FormControl>
+
+            <Grid templateColumns="1fr 1fr" gap={4}>
+              <FormControl>
+                <FormLabel>Authentication</FormLabel>
+                <Select
+                  value={formData.authType}
+                  onChange={(e) => handleChange('authType', e.target.value)}
+                >
+                  <option value="none">None</option>
+                  <option value="bearer">Bearer Token</option>
+                  <option value="api_key">API Key</option>
+                </Select>
+              </FormControl>
+
+              {formData.authType !== 'none' && (
+                <FormControl>
+                  <FormLabel>Token/Key</FormLabel>
+                  <Input
+                    type="password"
+                    value={formData.authToken}
+                    onChange={(e) => handleChange('authToken', e.target.value)}
+                    placeholder="Enter your token or API key"
+                  />
+                </FormControl>
+              )}
+            </Grid>
+          </>
+        );
+
+      case 'websocket':
+        return (
+          <FormControl isRequired>
+            <FormLabel>WebSocket URL</FormLabel>
+            <Input
+              value={formData.url}
+              onChange={(e) => handleChange('url', e.target.value)}
+              placeholder="wss://example.com/websocket"
+            />
+          </FormControl>
+        );
+
+      case 'mqtt':
+        return (
+          <>
+            <Grid templateColumns="2fr 1fr" gap={4}>
+              <FormControl isRequired>
+                <FormLabel>Broker Host</FormLabel>
+                <Input
+                  value={formData.broker}
+                  onChange={(e) => handleChange('broker', e.target.value)}
+                  placeholder="mqtt.example.com"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Port</FormLabel>
+                <Input
+                  type="number"
+                  value={formData.port}
+                  onChange={(e) => handleChange('port', e.target.value)}
+                  placeholder="1883"
+                />
+              </FormControl>
+            </Grid>
+
+            <Grid templateColumns="2fr 1fr" gap={4}>
+              <FormControl isRequired>
+                <FormLabel>Topic</FormLabel>
+                <Input
+                  value={formData.topic}
+                  onChange={(e) => handleChange('topic', e.target.value)}
+                  placeholder="sensor/data"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>QoS</FormLabel>
+                <Select
+                  value={formData.qos}
+                  onChange={(e) => handleChange('qos', e.target.value)}
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid templateColumns="1fr 1fr" gap={4}>
+              <FormControl>
+                <FormLabel>Username</FormLabel>
+                <Input
+                  value={formData.username}
+                  onChange={(e) => handleChange('username', e.target.value)}
+                  placeholder="Optional"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Password</FormLabel>
+                <Input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => handleChange('password', e.target.value)}
+                  placeholder="Optional"
+                />
+              </FormControl>
+            </Grid>
+          </>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <VStack align="stretch" spacing={6}>
-        <Text fontSize="sm" color="gray.600">
-          Add a new data source connection to start collecting real-time data from your devices and systems.
+    <Box as="form" onSubmit={handleSubmit}>
+      <VStack spacing={6} align="stretch">
+        <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+          Create New Connection
         </Text>
-        
-        {errors.length > 0 && (
-          <Alert status="error" size="sm">
-            <AlertIcon />
-            <VStack align="start" spacing={0}>
-              {errors.map((error, index) => (
-                <Text key={index} fontSize="sm">{error}</Text>
-              ))}
-            </VStack>
-          </Alert>
-        )}
 
-        {successMessage && (
-          <Alert status="success" size="sm">
-            <AlertIcon />
-            <Text fontSize="sm">{successMessage}</Text>
-          </Alert>
-        )}
-        
-        <HStack spacing={4}>
-          <FormControl flex={1} isInvalid={errors.some(e => e.includes('name'))}>
-            <HStack spacing={2} mb={1}>
-              <FormLabel fontSize="sm" fontWeight="medium" mb={0}>Connection Name</FormLabel>
-              <ClickableTooltip 
-                content="Enter a descriptive name for this connection. This will help you identify the connection when assigning it to tags. Use names like 'Main PLC', 'Temperature Sensors', or 'Production Line MQTT'."
-              />
-            </HStack>
+        <Grid templateColumns="2fr 1fr" gap={4}>
+          <FormControl isRequired>
+            <FormLabel>Connection Name</FormLabel>
             <Input
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="My PLC Connection"
-              size="sm"
+              onChange={(e) => handleChange('name', e.target.value)}
+              placeholder="My Data Source"
             />
-            <FormErrorMessage fontSize="xs">Connection name is required</FormErrorMessage>
           </FormControl>
-          
-          <FormControl flex={1}>
-            <HStack spacing={2} mb={1}>
-              <FormLabel fontSize="sm" fontWeight="medium" mb={0}>Connection Type</FormLabel>
-              <ClickableTooltip 
-                content={
-                  <div>
-                    <p className="font-medium mb-2">Choose the protocol for your data source:</p>
-                    <ul className="text-xs space-y-1">
-                      <li>• <strong>OPC UA:</strong> Industrial automation standard</li>
-                      <li>• <strong>MQTT:</strong> Lightweight IoT messaging</li>
-                      <li>• <strong>HTTPS:</strong> REST APIs and web services</li>
-                      <li>• <strong>Modbus:</strong> Serial/TCP industrial protocol</li>
-                      <li>• <strong>S7:</strong> Siemens PLC communication</li>
-                    </ul>
-                  </div>
-                }
-              />
-            </HStack>
-            <select 
-              value={formData.type}
-              onChange={(e) => setFormData(prev => ({ 
-                ...prev, 
-                type: e.target.value as DataSource['type'],
-                config: {} // Reset config when type changes
-              }))}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
-            >
-              <option value="OPC UA">OPC UA</option>
-              <option value="MQTT">MQTT</option>
-              <option value="HTTPS">HTTPS API</option>
-              <option value="Modbus">Modbus TCP</option>
-              <option value="S7">Siemens S7</option>
-            </select>
-          </FormControl>
-        </HStack>
 
-        <FormControl isInvalid={errors.some(e => e.includes('endpoint'))}>
-          <HStack spacing={2} mb={1}>
-            <FormLabel fontSize="sm" fontWeight="medium" mb={0}>Endpoint URL</FormLabel>
-            <ClickableTooltip 
-              content="Enter the connection endpoint for your data source. This should include the protocol, IP address/hostname, and port number. Format varies by connection type."
-            />
-          </HStack>
-          <Input
-            value={formData.endpoint}
-            onChange={(e) => setFormData(prev => ({ ...prev, endpoint: e.target.value }))}
-            placeholder={getEndpointPlaceholder()}
-            size="sm"
+          <FormControl isRequired>
+            <FormLabel>Connection Type</FormLabel>
+            <Select
+              value={formData.type}
+              onChange={(e) => handleChange('type', e.target.value as any)}
+            >
+              <option value="rest_api">REST API</option>
+              <option value="websocket">WebSocket</option>
+              <option value="mqtt">MQTT</option>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <FormControl>
+          <FormLabel>Description</FormLabel>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+            placeholder="Brief description of this data source"
+            rows={2}
           />
-          <FormErrorMessage fontSize="xs">Valid endpoint URL is required</FormErrorMessage>
         </FormControl>
 
-        {/* Configuration Section */}
-        <Box>
-          <Text fontSize="sm" fontWeight="medium" mb={3}>
-            Advanced Configuration
-          </Text>
-          <DataSourceConfigForm
-            dataSource={formData}
-            config={formData.config}
-            onConfigChange={handleConfigChange}
-          />
-        </Box>
+        {renderConfigFields()}
 
-        <Button 
-          type="submit"
-          colorScheme="blue" 
-          size="sm" 
-          alignSelf="start" 
-          leftIcon={<AddIcon />}
-          isLoading={isLoading}
-          loadingText="Adding..."
-        >
-          Add Connection
-        </Button>
+        <HStack justify="end" pt={4}>
+          <Button
+            type="submit"
+            colorScheme="primary"
+            isLoading={loading}
+            loadingText="Creating..."
+            size="lg"
+          >
+            Create Connection
+          </Button>
+        </HStack>
       </VStack>
-    </form>
+    </Box>
   );
 };
 
