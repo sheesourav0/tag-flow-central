@@ -61,13 +61,13 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
       await deleteDataSource(dataSource.id);
       toaster.create({
         title: 'Data source deleted',
-        status: 'success',
+        type: 'success',
         duration: 3000,
       });
     } catch (error) {
       toaster.create({
         title: 'Failed to delete data source',
-        status: 'error',
+        type: 'error',
         duration: 3000,
       });
     }

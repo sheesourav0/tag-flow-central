@@ -14,8 +14,8 @@ import {
   DialogFooter,
   DialogCloseTrigger,
   DialogTitle,
-  Switch,
 } from '@chakra-ui/react';
+import { Switch } from '@chakra-ui/react';
 import { useTagStore } from '../store/tagStore';
 
 interface SettingsModalProps {
@@ -59,10 +59,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     Width: {column.width}px
                   </Text>
                 </VStack>
-                <Switch
+                <Switch.Root
                   checked={column.visible}
                   onCheckedChange={() => toggleColumn(column.key)}
-                />
+                >
+                  <Switch.Thumb />
+                </Switch.Root>
               </HStack>
             ))}
           </VStack>

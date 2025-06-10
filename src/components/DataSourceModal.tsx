@@ -67,7 +67,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
         toaster.create({
           title: 'Connection Test Successful',
           description: 'The data source is working correctly',
-          status: 'success',
+          type: 'success',
           duration: 3000,
         });
         setConnectionData(result.data || {});
@@ -75,7 +75,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
         toaster.create({
           title: 'Connection Test Failed',
           description: result.error || 'Unknown error occurred',
-          status: 'error',
+          type: 'error',
           duration: 5000,
         });
       }
@@ -83,7 +83,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
       toaster.create({
         title: 'Connection Test Failed',
         description: 'Failed to test connection',
-        status: 'error',
+        type: 'error',
         duration: 5000,
       });
     }
@@ -96,7 +96,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
   };
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={handleClose} size="4xl">
+    <DialogRoot open={isOpen} onOpenChange={handleClose} size="xl">
       <DialogContent maxH="90vh">
         <DialogHeader>
           <DialogTitle>
@@ -106,7 +106,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
         </DialogHeader>
         <DialogBody pb={6}>
           <VStack gap={6} align="stretch">
-            <TabsRoot value={activeTab} onValueChange={setActiveTab}>
+            <TabsRoot value={activeTab} onValueChange={(details) => setActiveTab(details.value)}>
               <TabsList>
                 <TabsTrigger value="create">Create Connection</TabsTrigger>
                 <TabsTrigger value="select">Select Connection</TabsTrigger>

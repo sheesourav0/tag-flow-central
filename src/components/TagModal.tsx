@@ -119,7 +119,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose, tag }) => {
   };
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={onClose} size="2xl">
+    <DialogRoot open={isOpen} onOpenChange={onClose} size="lg">
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
