@@ -105,7 +105,7 @@ const DataSourceModal: React.FC<DataSourceModalProps> = ({
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <VStack spacing={6} align="stretch">
+          <VStack gap={6} align="stretch">
             <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
               <TabList>
                 <Tab>Create Connection</Tab>

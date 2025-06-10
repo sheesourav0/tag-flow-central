@@ -7,13 +7,13 @@ import {
   Text,
   Badge,
   Button,
-  Icon,
+  IconButton,
+  useDisclosure,
+  useToast,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  IconButton,
-  useToast,
 } from '@chakra-ui/react';
 import { Database, Globe, Wifi, MoreVertical, Edit, Trash2, Play } from 'lucide-react';
 import { DataSource } from '../types/dataSource';
@@ -73,6 +73,8 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
     }
   };
 
+  const IconComponent = getIcon();
+
   return (
     <Box
       p={6}
@@ -84,17 +86,17 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
       _hover={{ shadow: 'md' }}
       transition="all 0.2s"
     >
-      <VStack align="stretch" spacing={4}>
+      <VStack align="stretch" gap={4}>
         <HStack justify="space-between">
-          <HStack spacing={3}>
+          <HStack gap={3}>
             <Box
               p={2}
               bg="blue.100"
               borderRadius="md"
             >
-              <Icon as={getIcon()} color="blue.500" boxSize={5} />
+              <IconComponent size={20} color="blue" />
             </Box>
-            <VStack align="start" spacing={0}>
+            <VStack align="start" gap={0}>
               <Text fontWeight="semibold" color="gray.800">
                 {dataSource.name}
               </Text>
@@ -106,22 +108,24 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
           <Menu>
             <MenuButton
               as={IconButton}
-              icon={<Icon as={MoreVertical} />}
+              icon={<MoreVertical size={16} />}
               variant="ghost"
               size="sm"
             />
             <MenuList>
-              <MenuItem icon={<Icon as={Edit} />} onClick={() => onEdit(dataSource)}>
+              <MenuItem onClick={() => onEdit(dataSource)}>
+                <Edit size={16} style={{ marginRight: '8px' }} />
                 Edit
               </MenuItem>
-              <MenuItem icon={<Icon as={Play} />}>
+              <MenuItem>
+                <Play size={16} style={{ marginRight: '8px' }} />
                 Test Connection
               </MenuItem>
               <MenuItem 
-                icon={<Icon as={Trash2} />} 
                 color="red.500"
                 onClick={handleDelete}
               >
+                <Trash2 size={16} style={{ marginRight: '8px' }} />
                 Delete
               </MenuItem>
             </MenuList>
@@ -147,8 +151,8 @@ const DataSourceCard: React.FC<DataSourceCardProps> = ({ dataSource, onEdit }) =
           size="sm"
           variant="outline"
           onClick={() => onEdit(dataSource)}
-          leftIcon={<Icon as={Edit} />}
         >
+          <Edit size={16} style={{ marginRight: '8px' }} />
           Configure
         </Button>
       </VStack>

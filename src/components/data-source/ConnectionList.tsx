@@ -7,7 +7,6 @@ import {
   Text,
   Button,
   Badge,
-  Icon,
   SimpleGrid,
   Heading,
 } from '@chakra-ui/react';
@@ -56,7 +55,7 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
   if (connections.length === 0) {
     return (
       <Box textAlign="center" py={8}>
-        <Icon as={Database} boxSize={12} color="gray.400" mb={4} />
+        <Database size={48} color="gray" style={{ margin: '0 auto 16px' }} />
         <Heading size="md" color="gray.600" mb={2}>
           No connections available
         </Heading>
@@ -68,92 +67,95 @@ const ConnectionList: React.FC<ConnectionListProps> = ({
   }
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       <Text fontSize="lg" fontWeight="semibold" color="gray.800">
         Select a Connection
       </Text>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-        {connections.map((connection) => (
-          <Box
-            key={connection.id}
-            p={6}
-            bg="white"
-            borderRadius="lg"
-            border="1px"
-            borderColor="gray.200"
-            _hover={{ borderColor: 'primary.300', shadow: 'md' }}
-            transition="all 0.2s"
-            cursor="pointer"
-            onClick={() => onSelect(connection)}
-          >
-            <VStack align="stretch" spacing={4}>
-              <HStack justify="space-between">
-                <HStack spacing={3}>
-                  <Box
-                    p={2}
-                    bg="blue.100"
-                    borderRadius="md"
-                  >
-                    <Icon as={getIcon(connection.type)} color="blue.500" boxSize={5} />
-                  </Box>
-                  <VStack align="start" spacing={0}>
-                    <Text fontWeight="semibold" color="gray.800">
-                      {connection.name}
-                    </Text>
-                    <Text fontSize="sm" color="gray.500">
-                      {connection.type.replace('_', ' ').toUpperCase()}
-                    </Text>
-                  </VStack>
+        {connections.map((connection) => {
+          const IconComponent = getIcon(connection.type);
+          return (
+            <Box
+              key={connection.id}
+              p={6}
+              bg="white"
+              borderRadius="lg"
+              border="1px"
+              borderColor="gray.200"
+              _hover={{ borderColor: 'primary.300', shadow: 'md' }}
+              transition="all 0.2s"
+              cursor="pointer"
+              onClick={() => onSelect(connection)}
+            >
+              <VStack align="stretch" gap={4}>
+                <HStack justify="space-between">
+                  <HStack gap={3}>
+                    <Box
+                      p={2}
+                      bg="blue.100"
+                      borderRadius="md"
+                    >
+                      <IconComponent size={20} color="blue" />
+                    </Box>
+                    <VStack align="start" gap={0}>
+                      <Text fontWeight="semibold" color="gray.800">
+                        {connection.name}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        {connection.type.replace('_', ' ').toUpperCase()}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                  <Badge colorScheme={getStatusColor(connection.status)} size="sm">
+                    {connection.status}
+                  </Badge>
                 </HStack>
-                <Badge colorScheme={getStatusColor(connection.status)} size="sm">
-                  {connection.status}
-                </Badge>
-              </HStack>
 
-              {connection.description && (
-                <Text fontSize="sm" color="gray.600" noOfLines={2}>
-                  {connection.description}
-                </Text>
-              )}
-
-              <HStack spacing={2}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  leftIcon={<Icon as={Play} />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onTest(connection);
-                  }}
-                >
-                  Test
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="primary"
-                  onClick={() => onSelect(connection)}
-                >
-                  Select
-                </Button>
-              </HStack>
-
-              {connectionData[connection.id] && (
-                <Box
-                  p={3}
-                  bg="green.50"
-                  borderRadius="md"
-                  border="1px"
-                  borderColor="green.200"
-                >
-                  <Text fontSize="xs" color="green.700" fontWeight="medium">
-                    ✓ Connection tested successfully
+                {connection.description && (
+                  <Text fontSize="sm" color="gray.600" noOfLines={2}>
+                    {connection.description}
                   </Text>
-                </Box>
-              )}
-            </VStack>
-          </Box>
-        ))}
+                )}
+
+                <HStack gap={2}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTest(connection);
+                    }}
+                  >
+                    <Play size={16} style={{ marginRight: '8px' }} />
+                    Test
+                  </Button>
+                  <Button
+                    size="sm"
+                    colorScheme="primary"
+                    onClick={() => onSelect(connection)}
+                  >
+                    Select
+                  </Button>
+                </HStack>
+
+                {connectionData[connection.id] && (
+                  <Box
+                    p={3}
+                    bg="green.50"
+                    borderRadius="md"
+                    border="1px"
+                    borderColor="green.200"
+                  >
+                    <Text fontSize="xs" color="green.700" fontWeight="medium">
+                      ✓ Connection tested successfully
+                    </Text>
+                  </Box>
+                )}
+              </VStack>
+            </Box>
+          );
+        })}
       </SimpleGrid>
     </VStack>
   );

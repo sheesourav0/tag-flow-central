@@ -117,9 +117,9 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         <HStack justify="space-between" align="center">
-          <VStack align="start" spacing={1}>
+          <VStack align="start" gap={1}>
             <Heading size="md" color="gray.800">
               Configure Data Source
             </Heading>
@@ -217,7 +217,7 @@ const DataSourceConfigForm: React.FC<DataSourceConfigFormProps> = ({
           </Text>
         </FormControl>
 
-        <HStack justify="end" pt={4} spacing={3}>
+        <HStack justify="end" pt={4} gap={3}>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>

@@ -41,7 +41,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         <ModalCloseButton />
         
         <ModalBody>
-          <VStack align="stretch" spacing={3}>
+          <VStack align="stretch" gap={3}>
             <Text fontSize="sm" color="gray.600">
               Configure which columns to display in the tag table.
             </Text>
@@ -50,7 +50,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             
             {columns.map((column) => (
               <HStack key={column.key} justify="space-between" p={2} borderRadius="md" _hover={{ bg: 'gray.50' }}>
-                <VStack align="start" spacing={0}>
+                <VStack align="start" gap={0}>
                   <Text fontSize="sm" fontWeight="medium">
                     {column.label}
                   </Text>

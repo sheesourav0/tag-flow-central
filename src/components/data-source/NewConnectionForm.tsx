@@ -259,7 +259,7 @@ const NewConnectionForm: React.FC<NewConnectionFormProps> = ({ onSuccess }) => {
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         <Text fontSize="lg" fontWeight="semibold" color="gray.800">
           Create New Connection
         </Text>
